@@ -49,5 +49,3 @@ def contact(request):
             messages.error(request, 'Please fill in all required fields (name, email, message).')
 
     return render(request, 'menu/contact.html')
-
-# __TEST_500__

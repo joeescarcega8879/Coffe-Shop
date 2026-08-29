@@ -9,10 +9,6 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
 
-    @admin.display(description='Description')
-    def short_description(self, obj):
-        return obj.description[:60] + ('…' if len(obj.description) > 60 else '')
-
 
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):

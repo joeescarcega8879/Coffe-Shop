@@ -16,6 +16,9 @@ media/
 .env
 .env.local
 
+# Notas internas de desarrollo (no forman parte del repo público)
+context.md
+
 # IDE
 .idea/
 .vscode/

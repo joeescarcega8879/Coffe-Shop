@@ -146,10 +146,12 @@ python manage.py flush --noinput && python manage.py loaddata initial_data   # r
 
 ## 🚀 Deployment (optional)
 
-The project is deployment-ready with minor tweaks:
+`SECRET_KEY`, `DEBUG` and `ALLOWED_HOSTS` are read from environment variables
+(`core/settings.py`), with safe local-dev defaults so nothing needs to be set
+to just run the project. For production:
 
-- Set `DEBUG = False`, `ALLOWED_HOSTS = ['yourdomain.com']`, and a real `SECRET_KEY`
-  via environment variables
+- Set env vars `SECRET_KEY=<a real secret>`, `DEBUG=False`,
+  `ALLOWED_HOSTS=yourdomain.com`
 - Configure a production database (PostgreSQL) if needed
 - Run `python manage.py collectstatic` and serve `static/` + `media/` with your
   web server (Render / PythonAnywhere / Railway all work)
