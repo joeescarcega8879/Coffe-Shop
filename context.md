@@ -23,7 +23,7 @@ Sitio web simple y responsivo para un restaurante con menú navegable, panel de 
 
 ## 📌 Estado del proyecto — actualizado 2026-08-28
 
-**Resumen:** Fase 0 ✅ · Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅ · Fase 4 ✅ (aplicadas) · Fase 5 pendiente.
+**Resumen:** Fase 0 ✅ · Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅ · Fase 4 ✅ · Fase 5 ✅ (aplicadas) · despliegue opcional pendiente.
 
 ### Decisiones confirmadas
 | Decisión | Elección |
@@ -106,12 +106,12 @@ Sitio web simple y responsivo para un restaurante con menú navegable, panel de 
 **Criterio de aceptación:** ✅ cumplido — verificado con test client: subida de imagen → `/media/menu_items/…` responde `200 image/jpeg`; detalle muestra la `<img>`; filtro por categoría OK; 404 custom y 500 custom renderizan.
 - [x] **Imágenes subidas (2026-08-28)**: los 10 platillos tienen imagen en `media/menu_items/` (subidas por Admin con las fotos del frontend; ver `imagenes_del_menu.md`). Las categorías no usan imagen en el diseño actual. Detalle menor: `chocolate-frappe..jpg` tiene doble punto en el nombre (cosmético, funciona bien).
 
-## Fase 5 — Tests, README y entrega ⏳ (en progreso)
+## Fase 5 — Tests, README y entrega ✅ (aplicada)
 - [x] Tests: modelos, vistas, filtrado por categoría, formulario de contacto — `menu/tests.py` con **21 tests, todos OK** (`python manage.py test`)
-- [ ] README con instrucciones: instalación, migraciones, seed, crear superusuario, correr servidor
-- [ ] (Opcional) Despliegue en Render / PythonAnywhere / Railway
+- [x] README (`README.md`): instalación (venv o conda), dependencias, migraciones, seed (`loaddata initial_data`), superusuario, runserver, tabla de URLs, tests, gestión de imágenes, comandos útiles y notas de despliegue
+- [ ] (Opcional) Despliegue en Render / PythonAnywhere / Railway — documentado en el README
 
-**Criterio de aceptación:** ⏳ parcial — `python manage.py test` pasa (21 tests ✅); falta el README.
+**Criterio de aceptación:** ✅ cumplido — `python manage.py test` pasa (21 tests) y el README permite reproducir el proyecto desde cero.
 
 ---
 
