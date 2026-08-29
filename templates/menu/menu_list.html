@@ -1,0 +1,82 @@
+{% extends 'base.html' %} {% block title %}Our Menu - Coffee Shop{% endblock %}
+{% block page %}menu{% endblock %} {% block content %}
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl">
+  <!-- header: cópialo tal cual -->
+  <h1 class="font-headline-md text-headline-md text-primary mb-md mt-xl">
+    Our Menu
+  </h1>
+  <p class="text-body-large text-on-surface-variant mb-xl">
+    Explore our delicious selection of coffee, tea, and pastries.
+  </p>
+
+  <!-- FILTROS: como links, activo según active_category -->
+  <div class="flex flex-wrap justify-center gap-sm mb-xl margin-bottom margin-top" id="menu-filters">
+    <a
+      href="{% url 'menu:menu_list' %}"
+      class="filter-btn {% if not active_category %}active{% endif %} px-md py-sm rounded-full border border-outline-variant font-label-bold text-label-bold text-primary hover:bg-surface-container-high"
+      >All</a
+    >
+    {% for cat in categories %}
+    <a
+      href="{% url 'menu:menu_list' %}?categoria={{ cat.slug }}"
+      class="filter-btn {% if active_category == cat.slug %}active{% endif %} px-md py-sm rounded-full border border-outline-variant font-label-bold text-label-bold text-primary hover:bg-surface-container-high"
+    >
+      {{ cat.name }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- GRID: loop de items, la tarjeta entera es un <a> -->
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter"
+    id="menu-grid"
+  >
+    {% for item in items %}
+    <a
+      href="{% url 'menu:menu_detail' item.pk %}"
+      class="menu-card bg-surface-container-lowest rounded-[16px] overflow-hidden shadow-[0_4px_12px_rgba(62,39,35,0.08)] flex flex-col h-full cursor-pointer invisible-initial animate-on-scroll"
+      data-animation="animate-fade-in-up"
+      data-delay="{{ forloop.counter0|add:1 }}00"
+    >
+      <div
+        class="h-48 relative bg-surface-container-low flex items-center justify-center"
+      >
+        {% if item.image %}
+        <img
+          class="absolute inset-0 w-full h-full object-cover"
+          src="{{ item.image.url }}"
+          alt="{{ item.name }}"
+        />
+        {% else %}
+        <span
+          class="material-symbols-outlined text-[64px] text-on-surface-variant/30"
+          >restaurant</span
+        >
+        {% endif %}
+      </div>
+      <div class="p-md flex flex-col flex-grow">
+        <span
+          class="inline-block bg-[rgba(192,133,82,0.1)] text-[#C08552] font-caption text-caption px-sm py-xs rounded-full self-start mb-sm"
+          >{{ item.category.name }}</span
+        >
+        <h3 class="font-headline-sm text-headline-sm text-primary mb-xs">
+          {{ item.name }}
+        </h3>
+        <p
+          class="font-body-md text-body-md text-on-surface-variant flex-grow mb-md"
+        >
+          {{ item.description }}
+        </p>
+        <div class="font-label-bold text-label-bold text-secondary">
+          ${{ item.price|floatformat:2 }}
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <p class="text-on-surface-variant col-span-full text-center">
+      No items found.
+    </p>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}

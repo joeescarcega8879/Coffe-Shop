@@ -1,0 +1,172 @@
+/* ============================================================
+   The Hearth Roastery — Global Styles
+   Shared by: home.html, menu.html, detail.html, contact.html
+   Loaded after Tailwind CDN so utilities keep precedence.
+   ============================================================ */
+
+/* ---------- Base ---------- */
+body {
+  background-color: #fef9f1; /* token: surface */
+  color: #1d1c17;            /* token: on-surface */
+}
+
+.dark body {
+  background-color: #32302b; /* token: inverse-surface */
+  color: #f5f0e8;            /* token: inverse-on-surface */
+}
+
+/* ---------- Navigation ---------- */
+.nav-link {
+  transition: color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+}
+
+.nav-link:hover {
+  color: #fbb981; /* token: tertiary-fixed-dim */
+  opacity: 1;
+}
+
+.nav-link:active {
+  transform: scale(0.95);
+}
+
+.nav-link.nav-active {
+  color: #fbb981;
+  border-bottom: 2px solid #fbb981;
+  padding-bottom: 4px; /* spacing: xs */
+}
+
+/* ---------- Shadows & Hover Lift ---------- */
+.soft-shadow {
+  box-shadow: 0 4px 12px rgba(62, 39, 35, 0.08);
+}
+
+.soft-shadow:hover {
+  box-shadow: 0 8px 24px rgba(62, 39, 35, 0.12);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(62, 39, 35, 0.12);
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Scroll reveal (home) ---------- */
+.animate-on-scroll {
+  opacity: 0;
+}
+
+.animate-on-scroll.is-visible {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* ---------- Menu page ---------- */
+.menu-card {
+  transition: all 0.3s ease;
+}
+
+.menu-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(62, 39, 35, 0.12);
+}
+
+.filter-btn {
+  transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+  background-color: #3e2723; /* token: primary-container */
+  color: #ffffff;            /* token: on-primary */
+  border-color: #3e2723;
+}
+
+.invisible-initial {
+  opacity: 0;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* ---------- Detail page ---------- */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Contact page ---------- */
+.input-focus-ring:focus {
+  border-color: #c08552; /* Toasted Accent */
+  outline: none;
+  box-shadow: none;
+}
+
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 1s ease-out;
+}
+
+.reveal-slide-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal-slide-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.is-revealed {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+}
+
+.btn-loading-transition {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-loading-transition::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: transform 0.5s ease-in-out;
+  opacity: 0;
+}
+
+.btn-loading-transition:hover::after {
+  opacity: 1;
+  transform: translateX(50%);
+}

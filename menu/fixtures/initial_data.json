@@ -1,0 +1,200 @@
+[
+  {
+    "model": "menu.category",
+    "pk": 1,
+    "fields": {
+      "name": "Coffees",
+      "slug": "coffees",
+      "description": "Specialty coffees prepared to order.",
+      "image": null,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.category",
+    "pk": 2,
+    "fields": {
+      "name": "Cold Drinks",
+      "slug": "cold-drinks",
+      "description": "Refreshing iced options.",
+      "image": null,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.category",
+    "pk": 3,
+    "fields": {
+      "name": "Desserts",
+      "slug": "desserts",
+      "description": "Homemade sweets to pair with your coffee.",
+      "image": null,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.category",
+    "pk": 4,
+    "fields": {
+      "name": "Breakfast",
+      "slug": "breakfast",
+      "description": "To start the day with energy.",
+      "image": null,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 1,
+    "fields": {
+      "name": "Espresso",
+      "description": "A concentrated shot of our signature house blend.",
+      "price": "3.50",
+      "image": null,
+      "category": 1,
+      "is_available": true,
+      "is_featured": true,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 2,
+    "fields": {
+      "name": "Cappuccino",
+      "description": "Espresso balanced with steamed milk and a thick layer of microfoam.",
+      "price": "4.50",
+      "image": null,
+      "category": 1,
+      "is_available": true,
+      "is_featured": true,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 3,
+    "fields": {
+      "name": "Latte",
+      "description": "Espresso with plenty of milk and a touch of foam.",
+      "price": "4.25",
+      "image": null,
+      "category": 1,
+      "is_available": true,
+      "is_featured": false,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 4,
+    "fields": {
+      "name": "Vanilla Frappe",
+      "description": "Iced coffee blended with ice and vanilla.",
+      "price": "5.25",
+      "image": null,
+      "category": 2,
+      "is_available": true,
+      "is_featured": false,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 5,
+    "fields": {
+      "name": "Chocolate Frappe",
+      "description": "Rich chocolate blended with ice and milk, finished with whipped cream.",
+      "price": "5.50",
+      "image": null,
+      "category": 2,
+      "is_available": true,
+      "is_featured": true,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 6,
+    "fields": {
+      "name": "Lemonade",
+      "description": "Fresh lemonade with a hint of mint.",
+      "price": "3.95",
+      "image": null,
+      "category": 2,
+      "is_available": true,
+      "is_featured": false,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 7,
+    "fields": {
+      "name": "Cheesecake",
+      "description": "Classic, creamy New York style cheesecake with a graham cracker crust.",
+      "price": "6.00",
+      "image": null,
+      "category": 3,
+      "is_available": true,
+      "is_featured": true,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 8,
+    "fields": {
+      "name": "Brownie",
+      "description": "Chocolate walnut brownie, served warm.",
+      "price": "4.50",
+      "image": null,
+      "category": 3,
+      "is_available": true,
+      "is_featured": false,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 9,
+    "fields": {
+      "name": "Croissant",
+      "description": "Flaky, buttery, and baked fresh daily in-house.",
+      "price": "3.75",
+      "image": null,
+      "category": 3,
+      "is_available": true,
+      "is_featured": false,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 10,
+    "fields": {
+      "name": "Pancakes",
+      "description": "Three fluffy buttermilk pancakes served with real maple syrup.",
+      "price": "8.50",
+      "image": null,
+      "category": 4,
+      "is_available": true,
+      "is_featured": true,
+      "created_at": "2026-08-26T09:00:00Z",
+      "updated_at": "2026-08-26T09:00:00Z"
+    }
+  }
+]

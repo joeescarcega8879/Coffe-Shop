@@ -1,0 +1,115 @@
+{% extends 'base.html' %} {% block title %}Coffee Shop - Home{% endblock %}
+{%block page %}home{% endblock %} {% block content %}
+<section
+  class="bg-surface-container-low py-xl md:py-24 px-margin-mobile md:px-lg border-t border-b border-outline-variant/20"
+>
+  <!-- Hero Section -->
+  <section
+    class="bg-inverse-on-surface py-xl md:py-24 px-margin-mobile md:px-lg flex items-center justify-center min-h-[716px] border-b border-outline-variant/20"
+  >
+    <div class="max-w-container-max mx-auto text-center animate-on-scroll">
+      <h1
+        class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-primary mb-md"
+      >
+        Fresh Coffee, Baked Daily
+      </h1>
+      <p
+        class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-xl"
+      >
+        Start your morning with artisanal roasts and handmade pastries,
+        carefully crafted to bring warmth to your day.
+      </p>
+      <a
+        class="inline-flex items-center justify-center bg-primary-container text-on-primary rounded-lg px-lg py-sm font-label-bold text-label-bold hover:scale-105 transition-transform duration-200 soft-shadow hover-lift"
+        href="{% url 'menu:menu_list' %}"
+      >
+        View Our Menu
+      </a>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section
+    class="py-xl md:py-24 px-margin-mobile md:px-lg max-w-container-max mx-auto"
+  >
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-xl items-center animate-on-scroll"
+    >
+      <div>
+        <h2 class="font-headline-md text-headline-md text-primary mb-md">
+          Our Story
+        </h2>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mb-md">
+          Born from a passion for the perfect cup, The Hearth Roastery has been
+          a local cornerstone for over a decade. We source ethically grown beans
+          from small farms globally, roasting them in-house daily to ensure peak
+          freshness.
+        </p>
+        <p class="font-body-md text-body-md text-on-surface-variant">
+          Our space is designed to be your second living room—a cozy, tactile
+          environment where the aroma of espresso and fresh baking provides a
+          backdrop for connection and reflection.
+        </p>
+      </div>
+      <div
+        class="relative w-full aspect-square rounded-xl overflow-hidden soft-shadow"
+      >
+        <img
+          class="object-cover w-full h-full"
+          data-alt="A warm, inviting shot of a barista pouring latte art in a cozy, sunlit coffee shop. The setting features rustic wooden counters, warm cream-colored walls, and soft natural lighting filtering through a window, creating a modern tactile aesthetic. The focus is on the rich brown tones of the coffee and the pristine white of the milk foam."
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJipgXHLhxwRW7tsI2WW4cmPcwyAjJRlZKJ25pTHcbeDRw6tVLuAudVe88yJ1HO6iIlJx-Q3Pur161v_WEA_mQ-R60LB7tG-QsQgTOniA5lQFonZTMETiYS0-FSNCKxQ0qDzBERH3E3F3D6olhCNGVV4xChNq3R_HUMYyQ4qEA0euCH_A4wbcc7FsYT58u2eztTsUOwdQ6FXhba2_0t9XtXH2mBca31tJRs-EaGFUHRuzx_Fqn0zp5LQ"
+        />
+      </div>
+    </div>
+  </section>
+  <div class="max-w-container-max mx-auto">
+    <h2
+      class="font-headline-md text-headline-md text-primary mb-xl text-center"
+    >
+      Featured Favorites
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+      {% for item in featured_items %}
+      <div
+        class="bg-surface-container-lowest rounded-xl overflow-hidden soft-shadow hover-lift transition-all duration-300 flex flex-col animate-on-scroll"
+        style="animation-delay: 0.{{ forloop.counter }}s"
+      >
+        <div class="h-48 w-full bg-surface-variant relative">
+          {% if item.image %}
+          <img
+            class="object-cover w-full h-full"
+            src="{{ item.image.url }}"
+            alt="{{ item.name }}"
+          />
+          {% else %}
+          <div
+            class="w-full h-full flex items-center justify-center bg-surface-variant"
+          >
+            <span
+              class="font-headline-md text-headline-md text-on-surface-variant/40"
+              >{{ item.name|slice:":1" }}</span
+            >
+          </div>
+          {% endif %}
+        </div>
+        <div class="p-md flex-grow flex flex-col justify-between">
+          <div>
+            <h3 class="font-headline-sm text-headline-sm text-primary mb-xs">
+              {{ item.name }}
+            </h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-md">
+              {{ item.description }}
+            </p>
+          </div>
+          <div class="font-body-md text-body-md font-bold text-secondary">
+            ${{ item.price|floatformat:2 }}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-on-surface-variant">No featured items yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
