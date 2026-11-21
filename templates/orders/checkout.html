@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - Coffee Shop{% endblock %}
+{% block page %}cart{% endblock %}
+{% block content %}
+<div class="pt-24 pb-xl px-margin-mobile md:px-lg max-w-container-max mx-auto w-full grid md:grid-cols-2 gap-lg">
+  <form method="post" class="flex flex-col gap-md">
+    {% csrf_token %}
+    <h1 class="font-headline-md text-headline-md text-primary">Checkout</h1>
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}" class="font-label-bold text-label-bold">{{ field.label }}</label>
+      {{ field }}
+      {% for error in field.errors %}<p class="text-error">{{ error }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <button class="bg-primary-container text-on-primary font-label-bold text-label-bold py-md rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
+      Place order
+    </button>
+  </form>
+
+  <div class="bg-surface-container-lowest rounded-xl soft-shadow p-lg h-fit">
+    <h2 class="font-headline-sm text-headline-sm text-primary mb-md">Summary</h2>
+    {% for row in rows %}
+    <div class="flex justify-between py-xs">
+      <span>{{ row.quantity }} × {{ row.item.name }}</span>
+      <span>${{ row.subtotal|floatformat:2 }}</span>
+    </div>
+    {% endfor %}
+    <div class="flex justify-between border-t border-outline-variant/20 mt-md pt-md font-label-bold text-label-bold">
+      <span>Total</span><span>${{ total|floatformat:2 }}</span>
+    </div>
+    <a href="{% url 'orders:cart' %}" class="inline-block mt-md text-secondary underline">Edit order</a>
+  </div>
+</div>
+{% endblock %}

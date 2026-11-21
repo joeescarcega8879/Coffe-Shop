@@ -32,9 +32,8 @@
     id="menu-grid"
   >
     {% for item in items %}
-    <a
-      href="{% url 'menu:menu_detail' item.pk %}"
-      class="menu-card bg-surface-container-lowest rounded-[16px] overflow-hidden shadow-[0_4px_12px_rgba(62,39,35,0.08)] flex flex-col h-full cursor-pointer invisible-initial animate-on-scroll"
+    <article
+      class="menu-card relative bg-surface-container-lowest rounded-[16px] overflow-hidden shadow-[0_4px_12px_rgba(62,39,35,0.08)] flex flex-col h-full cursor-pointer invisible-initial animate-on-scroll"
       data-animation="animate-fade-in-up"
       data-delay="{{ forloop.counter0|add:1 }}00"
     >
@@ -53,6 +52,16 @@
           >restaurant</span
         >
         {% endif %}
+        <button
+          type="button"
+          class="quick-add"
+          data-add-to-cart
+          data-url="{% url 'orders:cart_add' item.pk %}"
+          data-name="{{ item.name }}"
+          aria-label="Add {{ item.name }} to order"
+        >
+          <span class="material-symbols-outlined">add</span>
+        </button>
       </div>
       <div class="p-md flex flex-col flex-grow">
         <span
@@ -60,7 +69,11 @@
           >{{ item.category.name }}</span
         >
         <h3 class="font-headline-sm text-headline-sm text-primary mb-xs">
-          {{ item.name }}
+          <a
+            href="{% url 'menu:menu_detail' item.pk %}"
+            class="after:absolute after:inset-0 after:content-['']"
+            >{{ item.name }}</a
+          >
         </h3>
         <p
           class="font-body-md text-body-md text-on-surface-variant flex-grow mb-md"
@@ -71,7 +84,7 @@
           ${{ item.price|floatformat:2 }}
         </div>
       </div>
-    </a>
+    </article>
     {% empty %}
     <p class="text-on-surface-variant col-span-full text-center">
       No items found.

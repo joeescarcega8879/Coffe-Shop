@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Your Order - Coffee Shop{% endblock %}
+{% block page %}cart{% endblock %}
+{% block content %}
+<div data-cart-page class="pt-24 pb-xl px-margin-mobile md:px-lg max-w-container-max mx-auto w-full">
+  <h1 class="font-headline-md text-headline-md text-primary mb-lg">Your Order</h1>
+
+  <!-- Filled state -->
+  <div data-when-filled {% if not rows %}hidden{% endif %}>
+    <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(62,39,35,0.08)] px-md md:px-lg">
+      {% for row in rows %}
+      <div class="collapse-row cart-row-in" style="--i:{{ forloop.counter0 }}"
+           data-row data-pk="{{ row.item.pk }}" data-qty="{{ row.quantity }}"
+           data-update-url="{% url 'orders:cart_update' row.item.pk %}"
+           data-remove-url="{% url 'orders:cart_remove' row.item.pk %}">
+        <div class="collapse-inner">
+          <div class="flex items-center gap-md py-md border-b border-outline-variant/20">
+            <a href="{% url 'menu:menu_detail' row.item.pk %}"
+               class="w-20 h-20 rounded-lg overflow-hidden bg-surface-variant grid place-items-center shrink-0">
+              {% if row.item.image %}
+              <img class="w-full h-full object-cover" src="{{ row.item.image.url }}" alt="" />
+              {% else %}
+              <span class="text-on-surface-variant/40 font-headline-sm">{{ row.item.name|slice:":1" }}</span>
+              {% endif %}
+            </a>
+
+            <div class="flex-1 min-w-0">
+              <a href="{% url 'menu:menu_detail' row.item.pk %}"
+                 class="font-label-bold text-label-bold text-primary block truncate hover:text-secondary transition-colors">{{ row.item.name }}</a>
+              <p class="text-on-surface-variant">${{ row.item.price|floatformat:2 }} each</p>
+              <div class="stepper mt-sm">
+                <button type="button" data-qty-step="-1" aria-label="Decrease quantity of {{ row.item.name }}">
+                  <span class="material-symbols-outlined text-[18px]">remove</span>
+                </button>
+                <span class="qty" data-qty aria-live="polite">{{ row.quantity }}</span>
+                <button type="button" data-qty-step="1" aria-label="Increase quantity of {{ row.item.name }}">
+                  <span class="material-symbols-outlined text-[18px]">add</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-end justify-between self-stretch">
+              <button type="button" data-cart-remove aria-label="Remove {{ row.item.name }}"
+                      class="text-on-surface-variant hover:text-error transition-colors">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+              <span class="font-label-bold text-label-bold" data-row-subtotal data-v="{{ row.subtotal|floatformat:2 }}">${{ row.subtotal|floatformat:2 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="flex flex-wrap justify-between items-center gap-md mt-lg">
+      <a href="{% url 'menu:menu_list' %}" class="inline-flex items-center gap-xs text-secondary group">
+        <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform duration-300">arrow_back</span>
+        Continue shopping
+      </a>
+      <div class="flex items-center gap-lg">
+        <p class="font-headline-sm text-headline-sm text-primary">
+          Total: <span data-cart-total data-v="{{ total|floatformat:2 }}" class="inline-block">${{ total|floatformat:2 }}</span>
+        </p>
+        <a href="{% url 'orders:checkout' %}"
+           class="bg-primary-container text-on-primary font-label-bold text-label-bold py-md px-lg rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
+          Checkout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div data-when-empty {% if rows %}hidden{% endif %}>
+    <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(62,39,35,0.08)] p-xl text-center animate-fade-in-up">
+      <span class="material-symbols-outlined text-on-surface-variant/30" style="font-size:72px">local_cafe</span>
+      <p class="font-headline-sm text-headline-sm text-primary mt-md">Your cup is empty</p>
+      <p class="text-on-surface-variant my-md">Add something delicious to get started.</p>
+      <a href="{% url 'menu:menu_list' %}"
+         class="inline-block bg-primary-container text-on-primary font-label-bold text-label-bold py-md px-lg rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
+        Browse the menu
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

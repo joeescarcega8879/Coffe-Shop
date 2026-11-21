@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Order placed - Coffee Shop{% endblock %}
+{% block page %}cart{% endblock %}
+{% block content %}
+<div class="pt-24 pb-xl px-margin-mobile max-w-container-max mx-auto text-center">
+  <span class="material-symbols-outlined text-tertiary" style="font-size:64px">check_circle</span>
+  <h1 class="font-headline-md text-headline-md text-primary mt-md">Thank you, {{ order.customer_name }}!</h1>
+  <p class="text-on-surface-variant mt-sm">
+    Your order #{{ order.pk }} was received. Total: ${{ order.total|floatformat:2 }}
+  </p>
+  <ul class="mt-lg inline-block text-left">
+    {% for it in order.items.all %}
+    <li>{{ it.quantity }} × {{ it.name }}</li>
+    {% endfor %}
+  </ul>
+  <div class="mt-lg"><a href="{% url 'menu:menu_list' %}" class="text-secondary underline">Back to menu</a></div>
+</div>
+{% endblock %}

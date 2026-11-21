@@ -170,3 +170,159 @@ body {
   opacity: 1;
   transform: translateX(50%);
 }
+
+/* ============================================================
+   Cart experience (drawer, toast, steppers, fly-to-cart)
+   ============================================================ */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);   /* soft deceleration */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* slight overshoot */
+}
+
+body.cart-locked { overflow: hidden; }
+
+/* ---------- Drawer ---------- */
+.cart-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(39, 19, 16, 0.45);
+  backdrop-filter: blur(2px);
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.4s var(--ease-out), visibility 0s linear 0.4s;
+}
+.cart-overlay.is-open {
+  opacity: 1; visibility: visible;
+  transition: opacity 0.4s var(--ease-out), visibility 0s;
+}
+
+.cart-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 70;
+  width: min(100%, 26rem);
+  display: flex; flex-direction: column;
+  background: #fef9f1;
+  box-shadow: -12px 0 40px rgba(62, 39, 35, 0.18);
+  border-radius: 1rem 0 0 1rem;
+  transform: translateX(105%);
+  visibility: hidden;
+  transition: transform 0.5s var(--ease-out), visibility 0s linear 0.5s;
+}
+.cart-drawer.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.5s var(--ease-out), visibility 0s;
+}
+
+/* items enter with a light stagger each time the drawer opens */
+.cart-drawer.is-open .drawer-item {
+  animation: drawerItemIn 0.5s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms + 120ms);
+}
+@keyframes drawerItemIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ---------- Row collapse (remove) ---------- */
+.collapse-row {
+  display: grid; grid-template-rows: 1fr;
+  transition: grid-template-rows 0.4s var(--ease-out), opacity 0.3s ease;
+}
+.collapse-row > .collapse-inner { min-height: 0; overflow: hidden; }
+.collapse-row.is-removing { grid-template-rows: 0fr; opacity: 0; }
+
+/* ---------- Quantity stepper ---------- */
+.stepper {
+  display: inline-flex; align-items: center;
+  border: 1px solid #d3c3c0; border-radius: 9999px; background: #fff;
+}
+.stepper button {
+  width: 2rem; height: 2rem; border-radius: 9999px;
+  display: grid; place-items: center; color: #3e2723;
+  transition: background-color 0.2s ease, transform 0.15s var(--ease-spring);
+}
+.stepper button:hover { background: #f2ede5; }
+.stepper button:active { transform: scale(0.85); }
+.stepper .qty { min-width: 1.75rem; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- Number / badge feedback ---------- */
+.num-flash { animation: numFlash 0.6s var(--ease-out); }
+@keyframes numFlash {
+  0%   { color: #c08552; transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.cart-badge {
+  transform: scale(0); opacity: 0;
+  transition: transform 0.35s var(--ease-spring), opacity 0.2s ease;
+}
+.cart-badge.has-items { transform: scale(1); opacity: 1; }
+.cart-badge.bump { animation: badgeBump 0.5s var(--ease-spring); }
+@keyframes badgeBump {
+  0% { transform: scale(1); } 40% { transform: scale(1.5); } 100% { transform: scale(1); }
+}
+.cart-shake { animation: cartShake 0.5s ease; }
+@keyframes cartShake {
+  0%,100% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 60% { transform: rotate(10deg); }
+}
+
+/* ---------- Quick-add button on cards ---------- */
+.quick-add {
+  position: absolute; right: 0.75rem; bottom: 0.75rem; z-index: 10;
+  width: 2.75rem; height: 2.75rem; border-radius: 9999px;
+  display: grid; place-items: center;
+  background: #3e2723; color: #fff;
+  box-shadow: 0 6px 16px rgba(62, 39, 35, 0.3);
+  transition: transform 0.3s var(--ease-spring), background-color 0.3s ease;
+}
+.quick-add:hover { transform: scale(1.1); background: #c08552; }
+.quick-add:active { transform: scale(0.9); }
+.quick-add.is-done { background: #4c7a4f; transform: scale(1.15) rotate(360deg); transition-duration: 0.5s; }
+@media (hover: hover) {
+  .menu-card .quick-add { opacity: 0; transform: translateY(8px) scale(0.9); }
+  .menu-card:hover .quick-add, .menu-card:focus-within .quick-add { opacity: 1; transform: none; }
+  .menu-card:hover .quick-add:hover { transform: scale(1.1); }
+}
+
+/* ---------- Fly dot ---------- */
+.fly-dot {
+  position: fixed; z-index: 90; pointer-events: none;
+  left: 0; top: 0; opacity: 0; border-radius: 9999px; will-change: transform, opacity;
+  background: #c08552; box-shadow: 0 0 0 4px rgba(192, 133, 82, 0.25);
+}
+
+/* ---------- Toast ---------- */
+.toast-stack {
+  position: fixed; z-index: 100; left: 50%; bottom: 1.25rem;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 0.5rem; align-items: center;
+  width: min(92vw, 24rem); pointer-events: none;
+}
+.toast {
+  pointer-events: auto; width: 100%;
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem; border-radius: 0.75rem;
+  background: #32302b; color: #f5f0e8;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: toastIn 0.5s var(--ease-spring) both;
+}
+.toast.is-leaving { animation: toastOut 0.3s ease forwards; }
+.toast button { color: #fbb981; font-weight: 600; margin-left: auto; white-space: nowrap; }
+@keyframes toastIn  { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(10px) scale(0.97); } }
+
+/* ---------- Cart page entrance ---------- */
+.cart-row-in { animation: drawerItemIn 0.55s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms); }
+
+/* ---------- Respect reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer, .cart-overlay, .collapse-row, .toast, .quick-add, .cart-badge { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  .drawer-item, .cart-row-in, .num-flash, .bump, .cart-shake { animation: none !important; }
+}
+
+/* success state must win over the hover-reveal rules above */
+.quick-add.is-done,
+.menu-card:hover .quick-add.is-done {
+  opacity: 1;
+  background: #4c7a4f;
+  transform: scale(1.15) rotate(360deg);
+  transition-duration: 0.5s;
+}

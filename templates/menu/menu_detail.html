@@ -66,8 +66,15 @@
         >
           {{ item.description }}
         </p>
-        <div class="flex gap-md mt-auto">
+        <form method="post" action="{% url 'orders:cart_add' item.pk %}" data-add-form data-name="{{ item.name }}" class="flex gap-md mt-auto">
+          {% csrf_token %}
+          <input
+            type="number" name="quantity" value="1" min="1" max="20"
+            aria-label="Quantity"
+            class="w-20 rounded-lg border border-outline-variant p-sm text-center"
+          />
           <button
+            type="submit"
             class="bg-primary-container text-on-primary font-label-bold text-label-bold py-md px-lg rounded-lg flex-grow hover:scale-[1.02] active:scale-95 transition-transform flex justify-center items-center gap-sm"
           >
             <span
@@ -76,9 +83,9 @@
               style="font-variation-settings: &quot;FILL&quot; 1"
               >shopping_bag</span
             >
-            Add to Order
+            <span data-label>Add to Order</span>
           </button>
-        </div>
+        </form>
       </div>
     </div>
   </section>
