@@ -1,5 +1,7 @@
 # ☕ Coffee Shop — online ordering for a café (Django)
 
+[![Tests](https://github.com/joeescarcega8879/Coffe-Shop/actions/workflows/tests.yml/badge.svg)](https://github.com/joeescarcega8879/Coffe-Shop/actions/workflows/tests.yml)
+
 A complete café website: customers browse the menu, order online and **follow their order live**;
 the owner runs everything from a **separate dashboard** — live orders, products, opening switch.
 
