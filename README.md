@@ -1,164 +1,168 @@
-# ☕ Coffee Shop — Restaurant Menu Website (Django)
+# ☕ Coffee Shop — online ordering for a café (Django)
 
-A simple, responsive restaurant website with a browsable menu, category filtering,
-item detail pages, a working contact form, and a full Django Admin panel.
+A complete café website: customers browse the menu, order online and **follow their order live**;
+the owner runs everything from a **separate dashboard** — live orders, products, opening switch.
 
-Built with **Django 5.2** and a custom frontend (Tailwind CDN + Material Symbols + custom CSS).
+**🔗 Live demo: <https://coffee-demo.duckdns.org>** &nbsp;·&nbsp; Django 5.2 · 200+ tests · deployed with Caddy + gunicorn
+
+<p align="center">
+  <img src="docs/screenshots/fly-to-cart.gif" alt="Adding a product to the cart: an animated dot flies from the product to the cart icon" width="760">
+</p>
 
 ---
 
-## ✨ Features
+## ✨ What it does
 
-- **Home page** — restaurant info, logo, featured items, navbar and footer
-- **Menu page** — grid of items (image, name, description, price, category) with
-  **server-side category filtering** via `?categoria=slug`
-- **Item detail page** — large image, full description, price, category (`/menu/<id>/`)
-- **Contact page** — restaurant info + **functional form** that saves `ContactMessage`
-  records and shows flash messages
-- **Django Admin** — CRUD for categories, menu items (with image thumbnails) and
-  contact messages
-- **Media support** — upload item images through the Admin, served in dev via `/media/`
-- **Custom 404/500 pages**, basic SEO (titles, meta description, alt attributes)
-- **Mobile-first** responsive design (collapsible navbar, adaptive grids)
+### For customers
+- **Menu** with category filters, product detail pages and a fully responsive layout.
+- **Cart drawer** — quick-add from the menu, quantity steppers, an animation that follows the product all the way to the cart.
+- **Checkout** for pickup or dine-in, with an email confirmation when an address is given.
+- **Live order tracking** at an unguessable link (`/track/<uuid>/`): *Pending → Preparing → Ready → Completed*, updating on its own.
+- **Contact form** with validation and field-level errors.
+- Friendly **"we're closed"** banner and a disabled checkout when the shop is not accepting orders.
+
+### For the owner (`/dashboard/`, staff only)
+- **Live orders board** by status, with one-click actions and a sound + tab counter when a new order arrives.
+- **Product management** — add, edit, hide, feature and delete products; **photo upload with automatic resizing**
+  (EXIF orientation fixed, 1200 px JPEG) — no need to touch the Django admin.
+- **Open / pause orders** switch, optional opening hours and an alert email for new orders (in **Settings**).
+- A standalone space: no customer navigation, `noindex`, its own header.
+
+### Under the hood
+- Cart in the session — prices always come from the database, never from the browser.
+- Order lines keep a **snapshot** of name and price: changing or deleting a product never rewrites history.
+- **Rate limiting** on checkout and contact (per client IP), 5 MB / real-image validation on uploads,
+  CSRF everywhere, staff-only views, safe redirects.
+- Production-ready: HTTPS redirect, secure cookies, HSTS, WhiteNoise, `check --deploy` clean —
+  see [Deployment](#-deployment).
+- `seed_demo` command with 40 products (8 per category) and photos, plus a daily refresh of the demo orders.
+
+## 📸 Screenshots
+
+| Menu | Product detail |
+|:--:|:--:|
+| <img src="docs/screenshots/menu.webp" alt="Menu page"> | <img src="docs/screenshots/detail.webp" alt="Product detail"> |
+| **Cart drawer** | **Checkout** |
+| <img src="docs/screenshots/cart-drawer.webp" alt="Cart drawer"> | <img src="docs/screenshots/checkout.webp" alt="Checkout"> |
+
+**Live order tracking** (customer)
+
+<img src="docs/screenshots/tracking.webp" alt="Order tracking page showing the Preparing step">
+
+**Mobile**
+
+<img src="docs/screenshots/mobile.webp" alt="Home, menu and order tracking on a phone" width="760">
+
+**Owner dashboard** — orders board
+
+<img src="docs/screenshots/dashboard-orders.webp" alt="Dashboard with orders grouped by status">
+
+| Products | Edit a product |
+|:--:|:--:|
+| <img src="docs/screenshots/dashboard-products.webp" alt="Product list"> | <img src="docs/screenshots/dashboard-product-edit.webp" alt="Edit product form with photo preview"> |
+
+<details>
+<summary>Home page</summary>
+
+<img src="docs/screenshots/home.webp" alt="Home page">
+</details>
 
 ## 🛠 Tech stack
 
 | Layer | Technology |
 |---|---|
-| Backend | Django 5.2 (Python) |
-| Database | SQLite (default) |
-| Frontend | Tailwind CSS (CDN), Material Symbols, vanilla JS + custom CSS |
-| Images | Pillow (`ImageField`) |
-| Tests | Django TestCase (21 tests) |
+| Backend | Python, **Django 5.2** (tested on Python 3.14) |
+| Database | SQLite (Django ORM throughout) |
+| Frontend | Server-rendered templates, Tailwind CSS (CDN), Material Symbols, vanilla JS |
+| Images | Pillow (validation, resize, JPEG optimisation) |
+| Production | gunicorn, WhiteNoise, Caddy (automatic HTTPS), systemd |
+| Tests | Django `TestCase` — 200+ tests |
 
-## 📁 Project structure
-
-```
-Coffe-Shop/
-├── core/                 # Project settings (settings.py, urls.py)
-├── menu/                 # Main app
-│   ├── fixtures/
-│   │   └── initial_data.json   # 4 categories + 10 menu items (seed data)
-│   ├── migrations/
-│   ├── admin.py          # Admin registrations + image thumbnails
-│   ├── models.py         # Category, MenuItem, ContactMessage
-│   ├── tests.py          # 21 tests (models, views, filtering, contact form)
-│   ├── urls.py           # app_name = 'menu'
-│   └── views.py          # home, menu_list, menu_detail, contact
-├── templates/
-│   ├── base.html         # Shared navbar/footer/flash messages
-│   ├── 404.html          # Custom error pages
-│   ├── 500.html
-│   └── menu/             # home, menu_list, menu_detail, contact
-├── static/               # css, js (Tailwind config, main.js)
-├── media/                # Uploaded images (menu_items/)
-└── manage.py
-```
-
-## 🚀 Getting started
-
-### 1. Clone & environment
+## 🚀 Run it locally
 
 ```bash
-git clone <your-repo-url> Coffe-Shop
+git clone https://github.com/joeescarcega8879/Coffe-Shop.git
 cd Coffe-Shop
-```
 
-Create a virtual environment (choose one):
-
-```bash
-# Option A — venv
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-# Option B — conda
-conda create -n DjangoEnvironment python=3.14
-conda activate DjangoEnvironment
-```
-
-### 2. Install dependencies
-
-```bash
+python -m venv venv && source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-### 3. Apply migrations
-
-```bash
 python manage.py migrate
-```
-
-### 4. Load seed data (4 categories + 10 menu items)
-
-```bash
-python manage.py loaddata initial_data
-```
-
-> ⚠️ The fixture includes `created_at`/`updated_at`/`date_sent` values explicitly —
-> `loaddata` requires them for `auto_now` fields, do not remove them.
-
-### 5. Create a superuser (admin panel)
-
-```bash
-python manage.py createsuperuser
-```
-
-### 6. Run the server
-
-```bash
+python manage.py seed_demo --with-orders              # 40 products with photos + sample orders
+python manage.py createsuperuser                      # your owner login
 python manage.py runserver
 ```
 
-Open **http://127.0.0.1:8000/** 🎉
+Open **<http://127.0.0.1:8000/>**. No environment variables are needed for development.
 
 | Page | URL |
 |---|---|
-| Home | `/` |
-| Menu | `/menu/` |
-| Menu + filter | `/menu/?categoria=coffees` |
-| Item detail | `/menu/1/` |
-| Contact | `/contact/` |
-| Admin | `/admin/` |
+| Home / Menu / Contact | `/`, `/menu/`, `/contact/` |
+| Cart / Checkout | `/cart/`, `/checkout/` |
+| Order tracking | `/track/<uuid>/` (link shown after ordering) |
+| **Owner dashboard** | `/dashboard/` (staff login) |
+| Products (owner) | `/dashboard/products/` |
+| Django admin | `/admin/` |
 
-## 🧪 Running the tests
+> Emails are printed in the console during development. To try the full flow: place an order,
+> open the tracking link, then advance the order from `/dashboard/` in another tab.
+
+Useful commands:
+
+```bash
+python manage.py seed_demo                  # add the demo products that are missing (idempotent)
+python manage.py seed_demo --force          # reset the demo products' price / description / photo
+python manage.py seed_demo --refresh-orders # recreate the sample orders dated today
+```
+
+## 🧪 Tests
 
 ```bash
 python manage.py test
 ```
 
-Runs 21 tests covering models (slug auto-generation, `__str__`, ordering),
-views (templates, context), category filtering, detail 404s, and the contact
-form (valid/invalid POST). Tests use a **temporary database** — your data is untouched.
+Covers models, views, the cart and checkout, order tracking, the dashboard (including that customers
+and anonymous users cannot reach it), product management and image handling, emails, store hours,
+rate limiting, the seed command and the production configuration (`check --deploy`, deploy files).
+Tests use a temporary database and a temporary media folder — your data is untouched.
 
-## 🖼 Managing images
+## 🗂 Project structure
 
-Upload item images through the Admin (`/admin/` → Menu items → pick file → Save).
-Thumbnails appear in the list view. Images are stored in `media/menu_items/` and
-served in development via `/media/`.
-
-## 🧹 Other useful commands
-
-```bash
-python manage.py makemigrations --check --dry-run   # verify migrations
-python manage.py collectstatic                      # needed before deploy
-python manage.py flush --noinput && python manage.py loaddata initial_data   # reset data
+```
+Coffe-Shop/
+├── core/                  # settings (env-driven), urls, ratelimit.py
+├── menu/                  # categories, products, contact
+│   ├── dashboard.py       #   owner product management
+│   ├── images.py          #   photo validation / resizing
+│   ├── management/commands/seed_demo.py
+│   └── fixtures/demo_images/   # demo photos + ATTRIBUTIONS.md
+├── orders/                # cart, checkout, orders, tracking, owner orders board
+│   ├── cart.py            #   session cart
+│   ├── emails.py          #   confirmation + new-order alert
+│   └── models.py          #   Order, OrderItem, StoreSettings
+├── templates/             # base (shop), dashboard/ (owner layout), menu/, orders/
+├── static/                # css, js (cart, tracking, dashboard)
+├── deploy/                # Caddyfile, systemd units, deploy.sh, server guide
+├── docs/screenshots/
+└── .env.example           # every environment variable, documented
 ```
 
-## 🚀 Deployment
+## 🌐 Deployment
 
-Production setup for a Linux server (tested stack: **Caddy** → **gunicorn** → Django, managed by systemd):
-see **[deploy/README.md](deploy/README.md)** for the step-by-step guide.
+Tested stack on a small Linux VPS: **Caddy** (automatic HTTPS) → **gunicorn** → Django, managed by systemd.
 
-- All configuration comes from environment variables — see [`.env.example`](.env.example)
-  (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `TIME_ZONE`, paths, email…).
-  Local development needs none of them.
-- With `DEBUG=False` the app enables HTTPS redirect, secure cookies and HSTS;
-  `python manage.py check --deploy` is part of the test suite.
-- Static files are served by WhiteNoise; uploaded media by the web server.
-- The owner dashboard (`/dashboard/`) is a separate staff-only space: live orders, product management
-  (add/edit/hide/feature/delete, photo upload with automatic resizing) and a store open/close switch.
-- Checkout and contact form are rate limited per client IP (10 / 5 requests per hour).
-- Update a running server with `./deploy/deploy.sh` (backs up the DB, migrates, restarts, health-checks).
+- Step-by-step server guide: **[deploy/README.md](deploy/README.md)**
+- All configuration comes from environment variables — see [`.env.example`](.env.example).
+- With `DEBUG=False` the app enables HTTPS redirect, secure cookies and HSTS.
+- Update a running server with `./deploy/deploy.sh` — it backs up the database, pulls, migrates,
+  collects static files, restarts and health-checks.
+- Optional daily timer that keeps the **demo** dashboard populated (`deploy/coffeeshop-demo-refresh.*`).
+
+## 📷 Photo credits
+
+The demo product photos come from Wikimedia Commons under CC0, public domain or CC BY licenses.
+Authors and sources are listed in [`menu/fixtures/demo_images/ATTRIBUTIONS.md`](menu/fixtures/demo_images/ATTRIBUTIONS.md)
+— keep that file with the photos if you publish them.
 
 ---
 
