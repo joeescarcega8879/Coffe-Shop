@@ -249,3 +249,18 @@ class RateLimitTests(TestCase):
         def my_view(request):
             return None
         self.assertEqual(my_view.__name__, 'my_view')
+
+
+class SocialMetaTests(TestCase):
+    """Favicon and Open Graph tags so shared links render a proper card."""
+
+    def test_home_has_favicon_and_absolute_og_image(self):
+        html = self.client.get(reverse('menu:home')).content.decode()
+        self.assertIn('rel="icon"', html)
+        self.assertIn('property="og:title"', html)
+        self.assertRegex(html, r'og:image" content="http://testserver/static/img/og-image\.jpg"')
+        self.assertIn('twitter:card', html)
+
+    def test_social_assets_exist(self):
+        for name in ('favicon.svg', 'og-image.jpg'):
+            self.assertTrue((Path(settings.BASE_DIR) / 'static' / 'img' / name).exists(), name)
