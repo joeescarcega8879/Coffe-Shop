@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from core.ratelimit import rate_limit
 from menu.models import MenuItem
 
 from .cart import Cart
@@ -92,6 +93,7 @@ def cart_remove(request, pk):
     return redirect('orders:cart')
 
 
+@rate_limit('checkout', limit=10, window=3600)
 def checkout(request):
     cart = Cart(request)
     rows = list(cart)

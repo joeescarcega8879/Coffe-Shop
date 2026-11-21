@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
+from core.ratelimit import rate_limit
+
 from .forms import ContactForm
 from .models import Category, MenuItem, ContactMessage
 
@@ -34,6 +36,7 @@ def menu_detail(request, pk):
     item = get_object_or_404(MenuItem, pk=pk, is_available=True)
     return render(request, 'menu/menu_detail.html', {'item': item})
 
+@rate_limit('contact', limit=5, window=3600)
 def contact(request):
     """Contact page: restaurant info + validated form (POST -> ContactMessage)."""
     form = ContactForm(request.POST or None)

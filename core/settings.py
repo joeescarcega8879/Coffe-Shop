@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,7 +32,16 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h]
+def _csv(name):
+    return [v.strip() for v in os.environ.get(name, '').split(',') if v.strip()]
+
+
+ALLOWED_HOSTS = _csv('ALLOWED_HOSTS')
+# Full origins incl. scheme, e.g. https://coffee.example.com (needed for POST forms behind HTTPS)
+CSRF_TRUSTED_ORIGINS = _csv('CSRF_TRUSTED_ORIGINS')
+
+# True while running `manage.py test`: keeps production-only settings out of the test suite
+TESTING = 'test' in sys.argv
 
 
 # Application definition
@@ -50,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # serves /static/ in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -86,7 +97,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # DB_PATH lets production keep the database outside the code directory
+        'NAME': os.environ.get('DB_PATH', BASE_DIR / 'db.sqlite3'),
     }
 }
 
@@ -128,9 +140,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # target of `collectstatic`
 MEDIA_URL = 'media/'
 
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', BASE_DIR / 'media')
+
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -145,3 +163,37 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Coffee Shop <no-reply@coffeeshop.local>')
+
+
+# ---------------------------------------------------------------------------
+# Cache + rate limiting (checkout / contact spam protection)
+# ---------------------------------------------------------------------------
+# A file-based cache is shared by all gunicorn workers; without CACHE_DIR we use
+# per-process memory, which is fine for local development.
+CACHE_DIR = os.environ.get('CACHE_DIR')
+if CACHE_DIR:
+    CACHES = {'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': CACHE_DIR,
+    }}
+else:
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
+
+RATELIMIT_ENABLED = not TESTING  # tests switch it on explicitly where needed
+# Behind Caddy/nginx the real client IP arrives in X-Forwarded-For. Only trust it
+# when a proxy you control sits in front of the app.
+TRUST_PROXY_HEADERS = os.environ.get('TRUST_PROXY', 'False') == 'True'
+
+# ---------------------------------------------------------------------------
+# Production security (active when DEBUG=False; see `manage.py check --deploy`)
+# ---------------------------------------------------------------------------
+if not DEBUG and not TESTING:
+    # The reverse proxy terminates TLS and tells us the original scheme.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True') == 'True'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Start low; raise to 31536000 (1 year) once HTTPS is confirmed working.
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', 3600))
+    # Deliberately not enabled: they affect every subdomain of the parent domain.
+    SILENCED_SYSTEM_CHECKS = ['security.W005', 'security.W021']
