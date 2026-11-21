@@ -1,5 +1,5 @@
 /* ============================================================
-   The Hearth Roastery — Shared site scripts
+   Coffee Shop — Shared site scripts
    Handles: active nav link, mobile menu, scroll reveal animations.
    Loaded on: home.html, menu.html, detail.html, contact.html
    ============================================================ */

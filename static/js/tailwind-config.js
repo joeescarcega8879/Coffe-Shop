@@ -1,5 +1,5 @@
 /* ============================================================
-   The Hearth Roastery — Tailwind theme configuration
+   Coffee Shop — Tailwind theme configuration
    IMPORTANT: must be loaded BEFORE the Tailwind CDN script.
    Shared by: home.html, menu.html, detail.html, contact.html
    ============================================================ */

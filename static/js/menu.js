@@ -1,5 +1,5 @@
 /* ============================================================
-   The Hearth Roastery — Menu page
+   Coffee Shop — Menu page
    Category filtering (All / Coffees / Cold Drinks / Desserts / Breakfast)
    Loaded on: menu.html (after main.js)
    ============================================================ */
