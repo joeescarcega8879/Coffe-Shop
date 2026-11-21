@@ -29,6 +29,34 @@
     return;
   }
 
+  const PILL_TEXT = { pending: 'Order received', preparing: 'Preparing your order', ready: 'Your order is ready!' };
+
+  // floating button so the customer can get back to their order from any page
+  let pill = null;
+  function renderPill() {
+    if (src) return;                       // success/track pages already link to the order
+    if (!pill) {
+      pill = document.createElement('a');
+      pill.className = 'order-pill';
+      pill.setAttribute('aria-live', 'polite');
+      pill.innerHTML = '<span class="order-pill-dot" aria-hidden="true"></span>' +
+        '<span class="order-pill-text"></span>' +
+        '<span class="order-pill-go">View</span>';
+      pill.href = order.trackUrl;
+      document.body.appendChild(pill);
+      document.body.classList.add('has-order-pill');
+      requestAnimationFrame(() => requestAnimationFrame(() => pill.classList.add('is-in')));
+    }
+    pill.dataset.status = order.status;
+    pill.querySelector('.order-pill-text').textContent = (PILL_TEXT[order.status] || 'Track your order') + ' · #' + order.id;
+    pill.setAttribute('aria-label', (PILL_TEXT[order.status] || 'Track your order') + ', order number ' + order.id + '. View order');
+  }
+  function removePill() {
+    pill?.remove(); pill = null;
+    document.body.classList.remove('has-order-pill');
+  }
+  renderPill();
+
   const MESSAGES = {
     ready: ['Your order is ready!', 'Come and pick it up.'],
     completed: ['Your order is complete', 'Enjoy! Thanks for visiting.'],
@@ -43,7 +71,7 @@
     el.setAttribute('role', 'alert');
     el.innerHTML = '<span aria-hidden="true" class="material-symbols-outlined order-alert-icon">notifications_active</span>' +
       '<div class="order-alert-body"><strong></strong><span></span></div>' +
-      '<a class="order-alert-link">View order</a>' +
+      '<a class="order-alert-link">View</a>' +
       '<button type="button" class="order-alert-close" aria-label="Dismiss"><span aria-hidden="true" class="material-symbols-outlined">close</span></button>';
     el.querySelector('strong').textContent = title;
     el.querySelector('.order-alert-body span').textContent = text;
@@ -60,7 +88,7 @@
     if (document.hidden) return;           // resumes on visibilitychange
     try {
       const res = await fetch(order.statusUrl, { headers: { Accept: 'application/json' } });
-      if (res.status === 404) return write(null);
+      if (res.status === 404) { removePill(); return write(null); }
       if (res.ok) {
         const data = await res.json();
         if (data.status !== order.status || (isFinal(data.status) && !order.notified)) {
@@ -70,6 +98,7 @@
           }
           order.status = data.status;
           write(isFinal(data.status) ? null : order);
+          if (isFinal(data.status)) removePill(); else renderPill();
         }
         if (isFinal(data.status)) return;
       }
