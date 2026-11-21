@@ -1,0 +1,24 @@
+# /etc/systemd/system/coffeeshop.service
+[Unit]
+Description=Coffee Shop (gunicorn)
+After=network.target
+
+[Service]
+User=coffee
+Group=coffee
+WorkingDirectory=/srv/coffeeshop/app
+EnvironmentFile=/etc/coffeeshop/env
+ExecStart=/srv/coffeeshop/venv/bin/gunicorn core.wsgi:application \
+    --bind 127.0.0.1:8000 --workers 3 --timeout 30 --access-logfile -
+Restart=on-failure
+RestartSec=3
+
+# Hardening: the app may only write to its data directory
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/coffeeshop
+
+[Install]
+WantedBy=multi-user.target

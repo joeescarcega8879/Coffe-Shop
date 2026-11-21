@@ -1,0 +1,15 @@
+# /etc/caddy/Caddyfile  - replace the domain below with yours.
+# Caddy obtains and renews the HTTPS certificate automatically.
+coffee-demo.duckdns.org {
+	encode zstd gzip
+
+	# Uploaded / demo product photos
+	handle_path /media/* {
+		root * /var/lib/coffeeshop/media
+		header Cache-Control "public, max-age=604800"
+		file_server
+	}
+
+	# Everything else (including /static/, served by WhiteNoise) goes to gunicorn
+	reverse_proxy 127.0.0.1:8000
+}

@@ -144,17 +144,19 @@ python manage.py collectstatic                      # needed before deploy
 python manage.py flush --noinput && python manage.py loaddata initial_data   # reset data
 ```
 
-## 🚀 Deployment (optional)
+## 🚀 Deployment
 
-`SECRET_KEY`, `DEBUG` and `ALLOWED_HOSTS` are read from environment variables
-(`core/settings.py`), with safe local-dev defaults so nothing needs to be set
-to just run the project. For production:
+Production setup for a Linux server (tested stack: **Caddy** → **gunicorn** → Django, managed by systemd):
+see **[deploy/README.md](deploy/README.md)** for the step-by-step guide.
 
-- Set env vars `SECRET_KEY=<a real secret>`, `DEBUG=False`,
-  `ALLOWED_HOSTS=yourdomain.com`
-- Configure a production database (PostgreSQL) if needed
-- Run `python manage.py collectstatic` and serve `static/` + `media/` with your
-  web server (Render / PythonAnywhere / Railway all work)
+- All configuration comes from environment variables — see [`.env.example`](.env.example)
+  (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `TIME_ZONE`, paths, email…).
+  Local development needs none of them.
+- With `DEBUG=False` the app enables HTTPS redirect, secure cookies and HSTS;
+  `python manage.py check --deploy` is part of the test suite.
+- Static files are served by WhiteNoise; uploaded media by the web server.
+- Checkout and contact form are rate limited per client IP (10 / 5 requests per hour).
+- Update a running server with `./deploy/deploy.sh` (backs up the DB, migrates, restarts, health-checks).
 
 ---
 
