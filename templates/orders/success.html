@@ -2,7 +2,9 @@
 {% block title %}Order placed - Coffee Shop{% endblock %}
 {% block page %}cart{% endblock %}
 {% block content %}
-<div class="pt-24 pb-xl px-margin-mobile max-w-container-max mx-auto text-center">
+<div class="pt-24 pb-xl px-margin-mobile max-w-container-max mx-auto text-center"
+     data-watch-order data-order-id="{{ order.pk }}" data-status="{{ order.status }}"
+     data-status-url="{% url 'orders:track_status' order.token %}" data-track-url="{{ order.get_absolute_url }}">
   <span aria-hidden="true" class="material-symbols-outlined text-tertiary" style="font-size:64px">check_circle</span>
   <h1 class="font-headline-md text-headline-md text-primary mt-md">Thank you, {{ order.customer_name }}!</h1>
   <p class="text-on-surface-variant mt-sm">

@@ -167,6 +167,8 @@ class SuccessTests(BaseTest):
         r = self.client.get(reverse('orders:success'))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.context['order'], Order.objects.get())
+        self.assertContains(r, 'data-watch-order')
+        self.assertContains(r, reverse('orders:track_status', args=[Order.objects.get().token]))
 
 
 class AdminTests(BaseTest):
@@ -338,6 +340,24 @@ class TrackingTests(BaseTest):
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, 'Espresso')
         self.assertContains(r, 'Pending')
+
+    def test_ready_banner_is_hidden_until_ready_and_shown_after(self):
+        from django.test import Client
+        html = Client().get(self.order.get_absolute_url()).content.decode()
+        self.assertRegex(html, r'data-track-ready[^>]*hidden')
+        self.order.status = Order.Status.READY
+        self.order.save()
+        html = Client().get(self.order.get_absolute_url()).content.decode()
+        self.assertNotRegex(html, r'data-track-ready[^>]*hidden')
+
+    def test_pages_register_the_order_for_the_site_wide_alert(self):
+        from django.test import Client
+        status_url = reverse('orders:track_status', args=[self.order.token])
+        html = Client().get(self.order.get_absolute_url()).content.decode()
+        self.assertIn('data-watch-order', html)
+        self.assertIn(status_url, html)
+        # the watcher script is loaded on every page
+        self.assertIn('js/order-watch.js', Client().get(reverse('menu:home')).content.decode())
 
     def test_unknown_token_404(self):
         import uuid

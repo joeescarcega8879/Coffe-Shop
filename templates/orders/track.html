@@ -4,7 +4,8 @@
 {% block page %}cart{% endblock %}
 {% block content %}
 <div class="pt-24 pb-xl px-margin-mobile md:px-lg max-w-container-max mx-auto w-full"
-     data-track data-status-url="{% url 'orders:track_status' order.token %}" data-status="{{ order.status }}">
+     data-track data-status-url="{% url 'orders:track_status' order.token %}" data-status="{{ order.status }}"
+     data-watch-order data-order-id="{{ order.pk }}" data-track-url="{{ order.get_absolute_url }}">
   <div class="max-w-2xl mx-auto">
     <p class="text-on-surface-variant text-center">Order #{{ order.pk }} · {{ order.get_order_type_display }}</p>
     <h1 class="font-headline-md text-headline-md text-primary text-center mt-xs" data-track-label aria-live="polite">{{ order.get_status_display }}</h1>
@@ -15,6 +16,11 @@
       {% elif order.status == 'completed' %}Enjoy! Thanks for visiting.
       {% else %}This order was cancelled. Please contact us if this is a mistake.{% endif %}
     </p>
+
+    <div data-track-ready class="order-ready-banner" role="alert" {% if order.status != 'ready' %}hidden{% endif %}>
+      <span aria-hidden="true" class="material-symbols-outlined">notifications_active</span>
+      <div><strong>Your order is ready!</strong> Come and pick it up.</div>
+    </div>
 
     <div data-track-cancelled class="mt-lg rounded-lg bg-error-container text-on-error-container p-md text-center" {% if order.status != 'cancelled' %}hidden{% endif %}>
       Order cancelled
