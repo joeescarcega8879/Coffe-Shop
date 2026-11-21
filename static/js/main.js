@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const href = (link.getAttribute('href') || '').split('/').filter(Boolean)[0] || '';
     if (href === currentPage || (currentPage === 'menu' && href === 'menu')) {
       link.classList.add('nav-active');
+      link.setAttribute('aria-current', 'page');
     }
   });
 
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const href = (link.getAttribute('href') || '').split('#')[0];
     if (href === activePage) {
       link.classList.add('nav-active');
+      link.setAttribute('aria-current', 'page');
     }
   });
 
@@ -32,13 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileMenu = document.getElementById('mobile-menu');
 
   if (mobileBtn && mobileMenu) {
-    mobileBtn.addEventListener('click', () => {
-      const willOpen = mobileMenu.classList.toggle('hidden');
-      const icon = mobileBtn.querySelector('.material-symbols-outlined');
-      if (icon) {
-        icon.textContent = willOpen ? 'menu' : 'close';
-      }
+    const icon = mobileBtn.querySelector('.material-symbols-outlined');
+    const setMenu = (open) => {
+      mobileMenu.classList.toggle('is-open', open);
+      mobileBtn.setAttribute('aria-expanded', String(open));
+      mobileBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      mobileMenu.inert = !open;           // closed links can't be tabbed to
+      if (icon) icon.textContent = open ? 'close' : 'menu';
+    };
+    setMenu(false);
+    mobileBtn.addEventListener('click', () => setMenu(!mobileMenu.classList.contains('is-open')));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('is-open')) { setMenu(false); mobileBtn.focus(); }
     });
+    // leaving the mobile layout while open: reset
+    window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
   }
 
   /* ---------- Scroll reveal animations ---------- */

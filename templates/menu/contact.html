@@ -21,7 +21,7 @@
       class="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_12px_rgba(62,39,35,0.08)] flex flex-col gap-md reveal-slide-left observer-element"
     >
       <div class="flex items-start gap-sm">
-        <span class="material-symbols-outlined text-secondary"
+        <span aria-hidden="true" class="material-symbols-outlined text-secondary"
           >location_on</span
         >
         <div>
@@ -34,21 +34,21 @@
         </div>
       </div>
       <div class="flex items-start gap-sm">
-        <span class="material-symbols-outlined text-secondary">call</span>
+        <span aria-hidden="true" class="material-symbols-outlined text-secondary">call</span>
         <div>
           <div class="font-label-bold text-label-bold text-primary">Phone</div>
           <div class="text-on-surface-variant">(555) 555-0123</div>
         </div>
       </div>
       <div class="flex items-start gap-sm">
-        <span class="material-symbols-outlined text-secondary">mail</span>
+        <span aria-hidden="true" class="material-symbols-outlined text-secondary">mail</span>
         <div>
           <div class="font-label-bold text-label-bold text-primary">Email</div>
           <div class="text-on-surface-variant">hello@example.com</div>
         </div>
       </div>
       <div class="flex items-start gap-sm">
-        <span class="material-symbols-outlined text-secondary">schedule</span>
+        <span aria-hidden="true" class="material-symbols-outlined text-secondary">schedule</span>
         <div>
           <div class="font-label-bold text-label-bold text-primary">Hours</div>
           <div class="text-on-surface-variant">Mon-Sun: 7am - 8pm</div>
@@ -80,12 +80,13 @@
               class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-sm input-focus-ring text-on-surface transition-colors duration-200"
               id="name"
               name="name"
+              autocomplete="name"
               value="{{ form.name.value|default:'' }}"
               placeholder="Your Name"
               required
               type="text"
             />
-            {% for e in form.name.errors %}<p class="text-error text-sm">{{ e }}</p>{% endfor %}
+            {% for e in form.name.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
           </div>
           <div class="flex flex-col gap-xs">
             <label
@@ -97,12 +98,13 @@
               class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-sm input-focus-ring text-on-surface transition-colors duration-200"
               id="email"
               name="email"
+              autocomplete="email"
               value="{{ form.email.value|default:'' }}"
               placeholder="your@email.com"
               required
               type="email"
             />
-            {% for e in form.email.errors %}<p class="text-error text-sm">{{ e }}</p>{% endfor %}
+            {% for e in form.email.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
           </div>
         </div>
         <div class="flex flex-col gap-xs">
@@ -115,11 +117,12 @@
             class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-sm input-focus-ring text-on-surface transition-colors duration-200"
             id="phone"
             name="phone"
+            autocomplete="tel"
               value="{{ form.phone.value|default:'' }}"
             placeholder="(123) 456-7890"
             type="tel"
           />
-            {% for e in form.phone.errors %}<p class="text-error text-sm">{{ e }}</p>{% endfor %}
+            {% for e in form.phone.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
         </div>
         <div class="flex flex-col gap-xs flex-grow">
           <label
@@ -135,7 +138,7 @@
             required
             rows="5"
           >{{ form.message.value|default:'' }}</textarea>
-          {% for e in form.message.errors %}<p class="text-error text-sm">{{ e }}</p>{% endfor %}
+          {% for e in form.message.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
         </div>
         <button
           type="submit"

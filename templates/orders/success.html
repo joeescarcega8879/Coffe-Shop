@@ -3,7 +3,7 @@
 {% block page %}cart{% endblock %}
 {% block content %}
 <div class="pt-24 pb-xl px-margin-mobile max-w-container-max mx-auto text-center">
-  <span class="material-symbols-outlined text-tertiary" style="font-size:64px">check_circle</span>
+  <span aria-hidden="true" class="material-symbols-outlined text-tertiary" style="font-size:64px">check_circle</span>
   <h1 class="font-headline-md text-headline-md text-primary mt-md">Thank you, {{ order.customer_name }}!</h1>
   <p class="text-on-surface-variant mt-sm">
     Your order #{{ order.pk }} was received. Total: ${{ order.total|floatformat:2 }}
@@ -15,7 +15,7 @@
   </ul>
   <div class="mt-lg">
     <a href="{{ order.get_absolute_url }}" class="inline-flex items-center gap-xs bg-primary-container text-on-primary font-label-bold text-label-bold py-md px-lg rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
-      <span class="material-symbols-outlined" style="font-size:20px">receipt_long</span> Track your order
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">receipt_long</span> Track your order
     </a>
   </div>
   {% if order.email %}<p class="text-on-surface-variant mt-md">We sent a confirmation to {{ order.email }}.</p>{% endif %}

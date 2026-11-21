@@ -13,7 +13,7 @@
       <form method="post" action="{% url 'orders:dashboard_toggle_store' %}">
         {% csrf_token %}
         <button class="inline-flex items-center gap-xs rounded-lg py-sm px-md font-label-bold text-label-bold transition-transform active:scale-95 {% if store.accepting_orders %}bg-tertiary-container text-on-tertiary{% else %}bg-error-container text-on-error-container{% endif %}">
-          <span class="material-symbols-outlined" style="font-size:20px">{% if store.accepting_orders %}storefront{% else %}block{% endif %}</span>
+          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">{% if store.accepting_orders %}storefront{% else %}block{% endif %}</span>
           {% if store.accepting_orders %}Accepting orders — tap to pause{% else %}Orders paused — tap to resume{% endif %}
         </button>
       </form>

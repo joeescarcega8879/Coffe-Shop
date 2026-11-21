@@ -264,3 +264,33 @@ class SocialMetaTests(TestCase):
     def test_social_assets_exist(self):
         for name in ('favicon.svg', 'og-image.jpg'):
             self.assertTrue((Path(settings.BASE_DIR) / 'static' / 'img' / name).exists(), name)
+
+
+class AccessibilityTests(TestCase):
+    """Guards for the basics: skip link, labelled menu button, alt text, decorative icons."""
+
+    def setUp(self):
+        self.html = self.client.get(reverse('menu:home')).content.decode()
+
+    def test_skip_link_targets_main(self):
+        self.assertIn('href="#main"', self.html)
+        self.assertIn('<main id="main"', self.html)
+
+    def test_mobile_menu_button_is_wired_for_screen_readers(self):
+        self.assertRegex(self.html, r'id="mobile-menu-btn"')
+        self.assertIn('aria-expanded="false"', self.html)
+        self.assertIn('aria-controls="mobile-menu"', self.html)
+        self.assertIn('id="mobile-menu"', self.html)
+
+    def test_icons_are_hidden_from_screen_readers(self):
+        for tag in re.findall(r'<span[^>]*material-symbols-outlined[^>]*>', self.html):
+            self.assertIn('aria-hidden="true"', tag)
+
+    def test_every_image_has_alt_attribute(self):
+        for tag in re.findall(r'<img\b[^>]*>', self.html, re.S):
+            self.assertRegex(tag, r'\balt="', tag[:80])
+
+    def test_low_contrast_accent_not_used_as_text_colour(self):
+        for name in ('menu_list.html', 'menu_detail.html'):
+            text = (Path(settings.BASE_DIR) / 'templates' / 'menu' / name).read_text()
+            self.assertNotIn('text-[#C08552]', text)

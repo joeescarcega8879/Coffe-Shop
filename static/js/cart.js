@@ -144,13 +144,13 @@
             <p class="font-label-bold text-label-bold text-primary truncate">${esc(it.name)}</p>
             <p class="text-sm text-on-surface-variant">${money(it.price)}</p>
             <div class="stepper mt-sm">
-              <button type="button" data-qty-step="-1" aria-label="Decrease quantity of ${esc(it.name)}"><span class="material-symbols-outlined text-[18px]">remove</span></button>
+              <button type="button" data-qty-step="-1" aria-label="Decrease quantity of ${esc(it.name)}"><span aria-hidden="true" class="material-symbols-outlined text-[18px]">remove</span></button>
               <span class="qty" data-qty aria-live="polite">${it.quantity}</span>
-              <button type="button" data-qty-step="1" aria-label="Increase quantity of ${esc(it.name)}"><span class="material-symbols-outlined text-[18px]">add</span></button>
+              <button type="button" data-qty-step="1" aria-label="Increase quantity of ${esc(it.name)}"><span aria-hidden="true" class="material-symbols-outlined text-[18px]">add</span></button>
             </div>
           </div>
           <div class="flex flex-col items-end justify-between">
-            <button type="button" data-cart-remove aria-label="Remove ${esc(it.name)}" class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">close</span></button>
+            <button type="button" data-cart-remove aria-label="Remove ${esc(it.name)}" class="text-on-surface-variant hover:text-error transition-colors"><span aria-hidden="true" class="material-symbols-outlined text-[20px]">close</span></button>
             <span class="font-label-bold text-label-bold" data-row-subtotal data-v="${it.subtotal}">${money(it.subtotal)}</span>
           </div>
         </div>
@@ -198,7 +198,7 @@
     while (stack.children.length >= 3) stack.firstChild.remove();
     const t = document.createElement('div');
     t.className = 'toast';
-    t.innerHTML = `<span class="material-symbols-outlined text-tertiary-fixed-dim">check_circle</span><span>${esc(message)}</span>`;
+    t.innerHTML = `<span aria-hidden="true" class="material-symbols-outlined text-tertiary-fixed-dim">check_circle</span><span>${esc(message)}</span>`;
     const dismiss = () => {
       t.classList.add('is-leaving');
       setTimeout(() => t.remove(), 300);

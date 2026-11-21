@@ -9,9 +9,9 @@ class CheckoutForm(forms.ModelForm):
         model = Order
         fields = ['customer_name', 'phone', 'email', 'order_type', 'notes']
         widgets = {
-            'customer_name': forms.TextInput(attrs={'class': INPUT, 'placeholder': 'Your name'}),
-            'phone': forms.TextInput(attrs={'class': INPUT, 'placeholder': 'Phone'}),
-            'email': forms.EmailInput(attrs={'class': INPUT, 'placeholder': 'Email (optional)'}),
+            'customer_name': forms.TextInput(attrs={'class': INPUT, 'placeholder': 'Your name', 'autocomplete': 'name'}),
+            'phone': forms.TextInput(attrs={'class': INPUT, 'placeholder': 'Phone', 'autocomplete': 'tel'}),
+            'email': forms.EmailInput(attrs={'class': INPUT, 'placeholder': 'Email (optional)', 'autocomplete': 'email'}),
             'order_type': forms.Select(attrs={'class': INPUT}),
             'notes': forms.Textarea(attrs={'class': INPUT, 'rows': 3, 'placeholder': 'Notes (optional)'}),
         }

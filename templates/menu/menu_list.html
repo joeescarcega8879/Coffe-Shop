@@ -47,7 +47,7 @@
           alt="{{ item.name }}"
         />
         {% else %}
-        <span
+        <span aria-hidden="true"
           class="material-symbols-outlined text-[64px] text-on-surface-variant/30"
           >restaurant</span
         >
@@ -60,12 +60,12 @@
           data-name="{{ item.name }}"
           aria-label="Add {{ item.name }} to order"
         >
-          <span class="material-symbols-outlined">add</span>
+          <span aria-hidden="true" class="material-symbols-outlined">add</span>
         </button>
       </div>
       <div class="p-md flex flex-col flex-grow">
         <span
-          class="inline-block bg-[rgba(192,133,82,0.1)] text-[#C08552] font-caption text-caption px-sm py-xs rounded-full self-start mb-sm"
+          class="inline-block bg-[rgba(192,133,82,0.1)] text-[#8a5a2b] font-caption text-caption px-sm py-xs rounded-full self-start mb-sm"
           >{{ item.category.name }}</span
         >
         <h3 class="font-headline-sm text-headline-sm text-primary mb-xs">

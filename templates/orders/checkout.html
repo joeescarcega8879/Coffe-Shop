@@ -10,7 +10,7 @@
     <div>
       <label for="{{ field.id_for_label }}" class="font-label-bold text-label-bold">{{ field.label }}</label>
       {{ field }}
-      {% for error in field.errors %}<p class="text-error">{{ error }}</p>{% endfor %}
+      {% for error in field.errors %}<p role="alert" class="text-error">{{ error }}</p>{% endfor %}
     </div>
     {% endfor %}
     {% if not store_open %}

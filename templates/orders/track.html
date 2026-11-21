@@ -24,7 +24,7 @@
       {% for key, label in steps %}
       <li class="tracker-step {% if forloop.counter0 < order.step %}is-done{% elif forloop.counter0 == order.step %}is-current{% endif %}" data-step-index="{{ forloop.counter0 }}">
         <span class="tracker-dot">
-          <span class="material-symbols-outlined">{% if key == 'pending' %}receipt_long{% elif key == 'preparing' %}coffee_maker{% elif key == 'ready' %}shopping_bag{% else %}task_alt{% endif %}</span>
+          <span aria-hidden="true" class="material-symbols-outlined">{% if key == 'pending' %}receipt_long{% elif key == 'preparing' %}coffee_maker{% elif key == 'ready' %}shopping_bag{% else %}task_alt{% endif %}</span>
         </span>
         <span class="tracker-label">{{ label }}</span>
       </li>

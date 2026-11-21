@@ -2,7 +2,7 @@
 {% block title %}{% if item %}Edit {{ item.name }}{% else %}New product{% endif %}{% endblock %}
 {% block content %}
 <div class="max-w-2xl mx-auto">
-  <a href="{% url 'menu:dash_products' %}" class="inline-flex items-center gap-xs text-secondary mb-md"><span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Products</a>
+  <a href="{% url 'menu:dash_products' %}" class="inline-flex items-center gap-xs text-secondary mb-md"><span aria-hidden="true" class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Products</a>
   <h1 class="font-headline-md text-headline-md text-primary mb-lg">{% if item %}Edit “{{ item.name }}”{% else %}New product{% endif %}</h1>
 
   {% if not has_categories %}

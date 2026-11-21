@@ -17,25 +17,25 @@
     <header class="sticky top-0 z-40 bg-primary shadow-md">
       <div class="flex flex-wrap items-center justify-between gap-x-lg gap-y-xs px-margin-mobile md:px-lg py-sm max-w-[110rem] mx-auto">
         <a href="{% url 'orders:dashboard' %}" class="flex items-center gap-xs text-surface-container-lowest font-headline-sm text-headline-sm tracking-tight">
-          <span class="material-symbols-outlined">local_cafe</span>
+          <span aria-hidden="true" class="material-symbols-outlined">local_cafe</span>
           Coffee Shop <span class="text-sm font-normal opacity-60">Dashboard</span>
         </a>
         <nav class="order-3 md:order-none flex w-full md:w-auto items-center gap-lg" aria-label="Dashboard">
           <a href="{% url 'orders:dashboard' %}" class="dash-tab {% if view == 'dashboard' %}is-active{% endif %}">
-            <span class="material-symbols-outlined" style="font-size:20px">receipt_long</span> Orders
+            <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">receipt_long</span> Orders
           </a>
           <a href="{% url 'menu:dash_products' %}" class="dash-tab {% if 'product' in view %}is-active{% endif %}">
-            <span class="material-symbols-outlined" style="font-size:20px">restaurant_menu</span> Products
+            <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">restaurant_menu</span> Products
           </a>
           <a href="{% url 'admin:orders_storesettings_change' 1 %}" class="dash-tab" title="Opening hours, alert email…">
-            <span class="material-symbols-outlined" style="font-size:20px">settings</span> Settings
+            <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">settings</span> Settings
           </a>
         </nav>
         <form method="post" action="{% url 'orders:dashboard_logout' %}" class="flex items-center gap-sm">
           {% csrf_token %}
           <span class="hidden sm:inline text-sm text-on-primary/70">{{ request.user.get_username }}</span>
           <button class="inline-flex items-center gap-xs text-on-primary/80 hover:text-on-primary transition-colors text-sm">
-            <span class="material-symbols-outlined" style="font-size:20px">logout</span> Log out
+            <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">logout</span> Log out
           </button>
         </form>
       </div>

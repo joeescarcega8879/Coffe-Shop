@@ -11,7 +11,7 @@
     </p>
   </div>
   <a href="{% url 'menu:dash_product_add' %}" class="inline-flex items-center gap-xs bg-primary-container text-on-primary font-label-bold text-label-bold py-sm px-lg rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
-    <span class="material-symbols-outlined" style="font-size:20px">add</span> Add product
+    <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">add</span> Add product
   </a>
 </div>
 
@@ -30,7 +30,7 @@
   <li class="flex flex-wrap items-center gap-md p-md {% if not p.is_available %}bg-surface-container/40{% endif %}" data-product-id="{{ p.pk }}">
     <div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-variant shrink-0 grid place-items-center {% if not p.is_available %}opacity-50{% endif %}">
       {% if p.image %}<img src="{{ p.image.url }}" alt="" class="w-full h-full object-cover" loading="lazy">
-      {% else %}<span class="material-symbols-outlined text-on-surface-variant/40">image</span>{% endif %}
+      {% else %}<span aria-hidden="true" class="material-symbols-outlined text-on-surface-variant/40">image</span>{% endif %}
     </div>
     <div class="flex-1 min-w-[10rem]">
       <p class="font-label-bold text-label-bold text-primary">{{ p.name }}</p>
@@ -40,20 +40,20 @@
       <form method="post" action="{% url 'menu:dash_product_toggle' p.pk %}">{% csrf_token %}
         <input type="hidden" name="field" value="available"><input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button class="dash-pill {% if p.is_available %}dash-pill-on{% else %}dash-pill-off{% endif %}" title="Click to {% if p.is_available %}hide from{% else %}show on{% endif %} the menu">
-          <span class="material-symbols-outlined" style="font-size:16px">{% if p.is_available %}visibility{% else %}visibility_off{% endif %}</span>
+          <span aria-hidden="true" class="material-symbols-outlined" style="font-size:16px">{% if p.is_available %}visibility{% else %}visibility_off{% endif %}</span>
           {% if p.is_available %}Available{% else %}Hidden{% endif %}
         </button>
       </form>
       <form method="post" action="{% url 'menu:dash_product_toggle' p.pk %}">{% csrf_token %}
         <input type="hidden" name="field" value="featured"><input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button class="p-xs rounded-full hover:bg-surface-container transition-colors" aria-label="{% if p.is_featured %}Remove {{ p.name }} from{% else %}Feature {{ p.name }} on{% endif %} the home page" title="{% if p.is_featured %}Featured on the home page{% else %}Feature on the home page{% endif %}">
-          <span class="material-symbols-outlined {% if p.is_featured %}dash-star-on{% else %}dash-star-off{% endif %}" style="font-variation-settings:'FILL' {% if p.is_featured %}1{% else %}0{% endif %}">star</span>
+          <span aria-hidden="true" class="material-symbols-outlined {% if p.is_featured %}dash-star-on{% else %}dash-star-off{% endif %}" style="font-variation-settings:'FILL' {% if p.is_featured %}1{% else %}0{% endif %}">star</span>
         </button>
       </form>
-      <a href="{% url 'menu:dash_product_edit' p.pk %}" class="dash-btn dash-btn-ghost inline-flex items-center gap-xs"><span class="material-symbols-outlined" style="font-size:16px">edit</span> Edit</a>
+      <a href="{% url 'menu:dash_product_edit' p.pk %}" class="dash-btn dash-btn-ghost inline-flex items-center gap-xs"><span aria-hidden="true" class="material-symbols-outlined" style="font-size:16px">edit</span> Edit</a>
       <form method="post" action="{% url 'menu:dash_product_delete' p.pk %}" onsubmit="return confirm('Delete {{ p.name|escapejs }}? This cannot be undone. Past orders keep their details.')">{% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button class="p-xs rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/50 transition-colors" aria-label="Delete {{ p.name }}"><span class="material-symbols-outlined">delete</span></button>
+        <button class="p-xs rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/50 transition-colors" aria-label="Delete {{ p.name }}"><span aria-hidden="true" class="material-symbols-outlined">delete</span></button>
       </form>
     </div>
   </li>

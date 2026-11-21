@@ -30,11 +30,11 @@
               <p class="text-on-surface-variant">${{ row.item.price|floatformat:2 }} each</p>
               <div class="stepper mt-sm">
                 <button type="button" data-qty-step="-1" aria-label="Decrease quantity of {{ row.item.name }}">
-                  <span class="material-symbols-outlined text-[18px]">remove</span>
+                  <span aria-hidden="true" class="material-symbols-outlined text-[18px]">remove</span>
                 </button>
                 <span class="qty" data-qty aria-live="polite">{{ row.quantity }}</span>
                 <button type="button" data-qty-step="1" aria-label="Increase quantity of {{ row.item.name }}">
-                  <span class="material-symbols-outlined text-[18px]">add</span>
+                  <span aria-hidden="true" class="material-symbols-outlined text-[18px]">add</span>
                 </button>
               </div>
             </div>
@@ -42,7 +42,7 @@
             <div class="flex flex-col items-end justify-between self-stretch">
               <button type="button" data-cart-remove aria-label="Remove {{ row.item.name }}"
                       class="text-on-surface-variant hover:text-error transition-colors">
-                <span class="material-symbols-outlined">close</span>
+                <span aria-hidden="true" class="material-symbols-outlined">close</span>
               </button>
               <span class="font-label-bold text-label-bold" data-row-subtotal data-v="{{ row.subtotal|floatformat:2 }}">${{ row.subtotal|floatformat:2 }}</span>
             </div>
@@ -54,7 +54,7 @@
 
     <div class="flex flex-wrap justify-between items-center gap-md mt-lg">
       <a href="{% url 'menu:menu_list' %}" class="inline-flex items-center gap-xs text-secondary group">
-        <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform duration-300">arrow_back</span>
+        <span aria-hidden="true" class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform duration-300">arrow_back</span>
         Continue shopping
       </a>
       <div class="flex items-center gap-lg">
@@ -72,7 +72,7 @@
   <!-- Empty state -->
   <div data-when-empty {% if rows %}hidden{% endif %}>
     <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(62,39,35,0.08)] p-xl text-center animate-fade-in-up">
-      <span class="material-symbols-outlined text-on-surface-variant/30" style="font-size:72px">local_cafe</span>
+      <span aria-hidden="true" class="material-symbols-outlined text-on-surface-variant/30" style="font-size:72px">local_cafe</span>
       <p class="font-headline-sm text-headline-sm text-primary mt-md">Your cup is empty</p>
       <p class="text-on-surface-variant my-md">Add something delicious to get started.</p>
       <a href="{% url 'menu:menu_list' %}"

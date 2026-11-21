@@ -30,9 +30,10 @@
     data-page="{% block page %}home{% endblock %}"
     class="bg-background text-on-background antialiased font-body-md text-body-md min-h-screen flex flex-col"
   >
+    <a href="#main" class="skip-link">Skip to content</a>
 
     <!-- NAVBAR -->
-    <nav class="fixed top-0 w-full z-50 bg-primary shadow-md">
+    <nav class="fixed top-0 w-full z-50 bg-primary shadow-md" aria-label="Main">
       <div
         class="flex justify-between items-center h-16 px-margin-mobile md:px-lg max-w-container-max mx-auto"
       >
@@ -69,7 +70,7 @@
             aria-label="Open your order"
             class="nav-link text-on-primary relative flex items-center p-1"
           >
-            <span class="material-symbols-outlined">shopping_bag</span>
+            <span aria-hidden="true" class="material-symbols-outlined">shopping_bag</span>
             <span
               data-cart-badge
               class="cart-badge {% if cart_count %}has-items{% endif %} absolute -top-1 -right-2 min-w-[1.25rem] h-5 px-1 grid place-items-center rounded-full bg-tertiary-fixed-dim text-primary text-xs font-bold"
@@ -77,11 +78,14 @@
             >
           </a>
           <button
-            aria-label="Menu"
+            type="button"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mobile-menu"
             id="mobile-menu-btn"
             class="md:hidden text-on-primary active:scale-95 transition-transform hover:text-tertiary-fixed-dim transition-colors duration-200"
           >
-            <span
+            <span aria-hidden="true"
               class="material-symbols-outlined"
               style="font-variation-settings: &quot;FILL&quot; 0"
               >menu</span
@@ -89,34 +93,18 @@
           </button>
         </div>
       </div>
-      <div
-        id="mobile-menu"
-        class="hidden md:hidden flex flex-col gap-sm px-margin-mobile pb-md bg-primary"
-      >
-        <a
-          class="nav-link text-on-primary opacity-80"
-          href="{% url 'menu:home' %}"
-          data-nav-link
-          >Home</a
-        >
-        <a
-          class="nav-link text-on-primary opacity-80"
-          href="{% url 'menu:menu_list' %}"
-          data-nav-link
-          >Menu</a
-        >
-        <a
-          class="nav-link text-on-primary opacity-80"
-          href="{% url 'menu:contact' %}"
-          data-nav-link
-          >Contact</a
-        >
+      <div id="mobile-menu" class="mobile-menu md:hidden bg-primary">
+        <div class="flex flex-col px-margin-mobile">
+          <a class="nav-link text-on-primary opacity-80" href="{% url 'menu:home' %}" data-nav-link >Home</a >
+          <a class="nav-link text-on-primary opacity-80" href="{% url 'menu:menu_list' %}" data-nav-link >Menu</a >
+          <a class="nav-link text-on-primary opacity-80" href="{% url 'menu:contact' %}" data-nav-link >Contact</a >
+        </div>
       </div>
     </nav>
 
     {% if not store_open %}
     <div class="store-closed-bar" role="status">
-      <span class="material-symbols-outlined" style="font-size:18px">schedule</span>
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:18px">schedule</span>
       <span>{{ store_closed_message }}</span>
     </div>
     {% endif %}
@@ -134,7 +122,7 @@
     </div>
     {% endif %}
 
-    <main class="flex-grow">{% block content %}{% endblock %}</main>
+    <main id="main" tabindex="-1" class="flex-grow">{% block content %}{% endblock %}</main>
 
     <!-- FOOTER (copiado de tu detail.html, con links Django) -->
     <footer
@@ -185,14 +173,14 @@
       <header class="flex items-center justify-between px-lg py-md border-b border-outline-variant/30">
         <h2 id="cart-drawer-title" class="font-headline-sm text-headline-sm text-primary">Your Order</h2>
         <button type="button" data-drawer-close aria-label="Close order" class="w-10 h-10 grid place-items-center rounded-full hover:bg-surface-container transition-colors">
-          <span class="material-symbols-outlined">close</span>
+          <span aria-hidden="true" class="material-symbols-outlined">close</span>
         </button>
       </header>
       <div class="flex-1 overflow-y-auto px-lg">
         <ul data-drawer-list></ul>
         <div data-when-empty {% if cart_count %}hidden{% endif %}>
           <div class="flex flex-col items-center text-center gap-md py-xl">
-            <span class="material-symbols-outlined text-on-surface-variant/30" style="font-size:72px">local_cafe</span>
+            <span aria-hidden="true" class="material-symbols-outlined text-on-surface-variant/30" style="font-size:72px">local_cafe</span>
             <p class="font-headline-sm text-headline-sm text-primary">Your cup is empty</p>
             <p class="text-on-surface-variant">Add something delicious to get started.</p>
             <a href="{% url 'menu:menu_list' %}" class="bg-primary-container text-on-primary font-label-bold text-label-bold py-sm px-lg rounded-lg">Browse the menu</a>
@@ -209,7 +197,7 @@
       </footer>
     </aside>
 
-    <div class="toast-stack" data-toast-stack aria-live="polite"></div>
+    <div class="toast-stack" data-toast-stack role="status" aria-live="polite"></div>
 
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/cart.js' %}"></script>
