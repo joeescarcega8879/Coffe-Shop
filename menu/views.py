@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
+from .forms import ContactForm
 from .models import Category, MenuItem, ContactMessage
 
 def home(request):    
@@ -34,18 +35,13 @@ def menu_detail(request, pk):
     return render(request, 'menu/menu_detail.html', {'item': item})
 
 def contact(request):
-    """Contact page: restaurant info + working form (POST -> ContactMessage)."""
+    """Contact page: restaurant info + validated form (POST -> ContactMessage)."""
+    form = ContactForm(request.POST or None)
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        email = request.POST.get('email', '').strip()
-        phone = request.POST.get('phone', '').strip()
-        message = request.POST.get('message', '').strip()
-
-        if name and email and message:
-            ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
+        if form.is_valid():
+            form.save()
             messages.success(request, 'Thank you for your message! We will get back to you soon.')
             return redirect('menu:contact')
-        else:
-            messages.error(request, 'Please fill in all required fields (name, email, message).')
+        messages.error(request, 'Please fix the highlighted fields.')
 
-    return render(request, 'menu/contact.html')
+    return render(request, 'menu/contact.html', {'form': form})

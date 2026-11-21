@@ -12,4 +12,10 @@ urlpatterns = [
     path('cart/remove/<int:pk>/', views.cart_remove, name='cart_remove'),
     path('checkout/', views.checkout, name='checkout'),
     path('order/success/', views.order_success, name='success'),
+    path('track/<uuid:token>/', views.order_track, name='track'),
+    path('track/<uuid:token>/status/', views.order_track_status, name='track_status'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/feed/', views.dashboard_feed, name='dashboard_feed'),
+    path('dashboard/store/toggle/', views.dashboard_toggle_store, name='dashboard_toggle_store'),
+    path('dashboard/<int:pk>/status/', views.dashboard_set_status, name='dashboard_status'),
 ]

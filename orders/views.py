@@ -1,9 +1,11 @@
 from decimal import Decimal
 
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
+from django.utils import timezone
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
@@ -11,7 +13,8 @@ from menu.models import MenuItem
 
 from .cart import Cart
 from .forms import CheckoutForm
-from .models import Order, OrderItem
+from .emails import send_order_emails
+from .models import Order, OrderItem, StoreSettings
 
 def _is_ajax(request):
     return request.headers.get('x-requested-with') == 'fetch'
@@ -96,6 +99,11 @@ def checkout(request):
         messages.error(request, 'Your cart is empty.')
         return redirect('menu:menu_list')
 
+    store = StoreSettings.load()
+    if request.method == 'POST' and not store.is_open_now():
+        messages.error(request, store.closed_message)
+        return redirect('orders:cart')
+
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
@@ -113,6 +121,7 @@ def checkout(request):
                     )
                     for row in rows
                 ])
+            send_order_emails(order, request)
             cart.clear()
             request.session['last_order_id'] = order.pk
             return redirect('orders:success')
@@ -128,3 +137,74 @@ def order_success(request):
         return redirect('menu:home')
     order = get_object_or_404(Order, pk=order_id)
     return render(request, 'orders/success.html', {'order': order})
+
+
+
+# ---------- Customer: order tracking ----------
+
+def order_track(request, token):
+    order = get_object_or_404(Order.objects.prefetch_related('items'), token=token)
+    return render(request, 'orders/track.html', {
+        'order': order,
+        'steps': [(s, Order.Status(s).label) for s in Order.FLOW],
+    })
+
+
+def order_track_status(request, token):
+    """Polled by the tracking page every few seconds."""
+    order = get_object_or_404(Order, token=token)
+    return JsonResponse({
+        'status': order.status,
+        'label': order.get_status_display(),
+        'step': order.step,
+        'done': order.status in ('completed', 'cancelled'),
+    })
+
+
+# ---------- Owner: dashboard (staff only) ----------
+
+@staff_member_required
+def dashboard(request):
+    today = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
+    orders = Order.objects.filter(created_at__gte=today).prefetch_related('items')
+    columns = [
+        (s, Order.Status(s).label, [o for o in orders if o.status == s])
+        for s in ('pending', 'preparing', 'ready', 'completed', 'cancelled')
+    ]
+    return render(request, 'orders/dashboard.html', {
+        'columns': columns,
+        'store': StoreSettings.load(),
+        'today_total': sum((o.total for o in orders if o.status != 'cancelled'), Decimal('0.00')),
+        'today_count': sum(1 for o in orders if o.status != 'cancelled'),
+        'statuses': Order.Status.choices,
+    })
+
+
+@staff_member_required
+@require_POST
+def dashboard_set_status(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    status = request.POST.get('status')
+    if status in Order.Status.values:
+        order.status = status
+        order.save(update_fields=['status'])
+    return redirect('orders:dashboard')
+
+
+@staff_member_required
+@require_POST
+def dashboard_toggle_store(request):
+    store = StoreSettings.load()
+    store.accepting_orders = not store.accepting_orders
+    store.save(update_fields=['accepting_orders'])
+    return redirect('orders:dashboard')
+
+
+@staff_member_required
+def dashboard_feed(request):
+    """Polled by the dashboard to detect new orders without a page reload."""
+    latest = Order.objects.order_by('-pk').first()
+    return JsonResponse({
+        'latest_id': latest.pk if latest else 0,
+        'pending': Order.objects.filter(status=Order.Status.PENDING).count(),
+    })
