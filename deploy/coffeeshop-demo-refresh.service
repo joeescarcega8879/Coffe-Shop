@@ -1,0 +1,18 @@
+# /etc/systemd/system/coffeeshop-demo-refresh.service
+# Recreates the demo orders dated "today" so /dashboard/ is never empty on the demo site.
+# Real orders are never touched (only customers named "Demo - ...").
+[Unit]
+Description=Coffee Shop: refresh demo orders
+
+[Service]
+Type=oneshot
+User=coffee
+Group=coffee
+WorkingDirectory=/srv/coffeeshop/app
+EnvironmentFile=/etc/coffeeshop/env
+ExecStart=/srv/coffeeshop/venv/bin/python manage.py seed_demo --refresh-orders
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/coffeeshop

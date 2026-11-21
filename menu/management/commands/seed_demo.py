@@ -2,11 +2,13 @@
 
     python manage.py seed_demo                 # add missing demo products
     python manage.py seed_demo --with-orders   # also create sample orders for the dashboard
+    python manage.py seed_demo --refresh-orders  # recreate the sample orders dated "today" (run daily)
     python manage.py seed_demo --force         # overwrite price/description/image of demo products
 
 Safe to run many times: existing products are left untouched unless --force is used.
 Photos live in menu/fixtures/demo_images (credits in ATTRIBUTIONS.md).
 """
+from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
 
@@ -84,16 +86,18 @@ PRODUCTS = [
      'A box of assorted French macarons: pistachio, vanilla, chocolate and more.'),
 ]
 
-# (customer, phone, type, status, notes, [(product name, qty), ...])
+# (customer, phone, type, status, notes, minutes ago, [(product name, qty), ...])
 SAMPLE_ORDERS = [
-    ('Demo - Sofia R.', '555-0101', 'pickup', 'pending', 'Oat milk please', [('Flat White', 2), ('Blueberry Muffin', 1)]),
-    ('Demo - Marcus T.', '555-0102', 'dine_in', 'pending', '', [('Eggs Benedict', 1), ('Cold Brew', 1)]),
-    ('Demo - Aiko N.', '555-0103', 'pickup', 'preparing', 'Extra hot', [('Matcha Latte', 1), ('Avocado Toast', 1)]),
-    ('Demo - Daniel P.', '555-0104', 'pickup', 'preparing', '', [('Americano', 1), ('Cinnamon Roll', 2)]),
-    ('Demo - Lucia M.', '555-0105', 'dine_in', 'ready', '', [('Tiramisu', 1), ('Macchiato', 1)]),
-    ('Demo - Omar H.', '555-0106', 'pickup', 'completed', '', [('Iced Mocha', 2)]),
-    ('Demo - Hannah B.', '555-0107', 'pickup', 'cancelled', 'Changed my mind', [('Granola Bowl', 1)]),
+    ('Demo - Sofia R.', '555-0101', 'pickup', 'pending', 'Oat milk please', 3, [('Flat White', 2), ('Blueberry Muffin', 1)]),
+    ('Demo - Marcus T.', '555-0102', 'dine_in', 'pending', '', 8, [('Eggs Benedict', 1), ('Cold Brew', 1)]),
+    ('Demo - Aiko N.', '555-0103', 'pickup', 'preparing', 'Extra hot', 14, [('Matcha Latte', 1), ('Avocado Toast', 1)]),
+    ('Demo - Daniel P.', '555-0104', 'pickup', 'preparing', '', 21, [('Americano', 1), ('Cinnamon Roll', 2)]),
+    ('Demo - Lucia M.', '555-0105', 'dine_in', 'ready', '', 33, [('Tiramisu', 1), ('Macchiato', 1)]),
+    ('Demo - Omar H.', '555-0106', 'pickup', 'completed', '', 47, [('Iced Mocha', 2)]),
+    ('Demo - Hannah B.', '555-0107', 'pickup', 'cancelled', 'Changed my mind', 62, [('Granola Bowl', 1)]),
 ]
+
+DEMO_PREFIX = 'Demo - '
 
 
 class Command(BaseCommand):
@@ -104,6 +108,9 @@ class Command(BaseCommand):
                             help='Overwrite price, description and image of existing demo products.')
         parser.add_argument('--with-orders', action='store_true',
                             help='Also create sample orders (skipped if demo orders already exist).')
+        parser.add_argument('--refresh-orders', action='store_true',
+                            help='Delete the demo orders and recreate them dated today '
+                                 '(real orders are never touched). Meant for a daily timer.')
 
     @transaction.atomic
     def handle(self, *args, **opts):
@@ -128,7 +135,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f'Products: {created} created, {updated} updated, {skipped} already existed.'))
 
-        if opts['with_orders']:
+        if opts['refresh_orders']:
+            _, per_model = Order.objects.filter(customer_name__startswith=DEMO_PREFIX).delete()
+            self.stdout.write(f"Removed {per_model.get('orders.Order', 0)} old demo orders.")
+            self._seed_orders()
+        elif opts['with_orders']:
             self._seed_orders()
 
     def _attach_image(self, item, slug):
@@ -141,11 +152,13 @@ class Command(BaseCommand):
         item.image.save(f'{slug}.jpg', ContentFile(path.read_bytes()), save=True)
 
     def _seed_orders(self):
-        if Order.objects.filter(customer_name__startswith='Demo - ').exists():
-            self.stdout.write('Demo orders already exist, skipping.')
+        if Order.objects.filter(customer_name__startswith=DEMO_PREFIX).exists():
+            self.stdout.write('Demo orders already exist, skipping (use --refresh-orders to recreate).')
             return
+        now = timezone.now()
+        midnight = timezone.localtime(now).replace(hour=0, minute=0, second=0, microsecond=0)
         n = 0
-        for customer, phone, otype, status, notes, lines in SAMPLE_ORDERS:
+        for customer, phone, otype, status, notes, minutes_ago, lines in SAMPLE_ORDERS:
             items = []
             for pname, qty in lines:
                 item = MenuItem.objects.filter(name=pname).order_by('-image').first()
@@ -159,5 +172,8 @@ class Command(BaseCommand):
             OrderItem.objects.bulk_create([
                 OrderItem(order=order, menu_item=i, name=i.name, price=i.price, quantity=q)
                 for i, q in items])
+            # "N minutes ago", but never before today's midnight so the dashboard (today only) shows it
+            created = max(now - timedelta(minutes=minutes_ago), midnight + timedelta(seconds=n + 1))
+            Order.objects.filter(pk=order.pk).update(created_at=created)
             n += 1
-        self.stdout.write(self.style.SUCCESS(f'Sample orders created: {n} (created today, visible in /dashboard/).'))
+        self.stdout.write(self.style.SUCCESS(f'Sample orders created: {n} (dated today, visible in /dashboard/).'))

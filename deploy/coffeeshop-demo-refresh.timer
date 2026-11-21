@@ -1,0 +1,12 @@
+# /etc/systemd/system/coffeeshop-demo-refresh.timer
+[Unit]
+Description=Daily refresh of the Coffee Shop demo orders
+
+[Timer]
+# Early morning in the shop's time zone (keep in sync with TIME_ZONE in /etc/coffeeshop/env)
+OnCalendar=*-*-* 06:00:00 America/Mexico_City
+# If the server was off at that time, run once when it comes back
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -64,6 +64,20 @@ cd /srv/coffeeshop/app && ./deploy/deploy.sh
 The script backs up the database (keeps the last 14), pulls, installs, migrates,
 collects static files, runs `check --deploy`, restarts and health-checks.
 
+## Keep the demo alive (optional, for a public demo)
+
+The dashboard only lists **today's** orders, so the sample orders would look stale the next day.
+A daily systemd timer recreates them dated today (only customers named `Demo - …`; real orders are never touched):
+
+```bash
+sudo cp /srv/coffeeshop/app/deploy/coffeeshop-demo-refresh.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now coffeeshop-demo-refresh.timer
+systemctl list-timers coffeeshop-demo-refresh.timer      # shows the next run
+sudo systemctl start coffeeshop-demo-refresh.service      # run it right now
+```
+If your `TIME_ZONE` is not `America/Mexico_City`, edit `OnCalendar` in the `.timer` file.
+Skip this on a real shop: it is meant for demo data only.
+
 ## After it works
 
 - Raise `SECURE_HSTS_SECONDS` to `31536000` in `/etc/coffeeshop/env` and restart.

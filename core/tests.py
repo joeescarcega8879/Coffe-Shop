@@ -132,9 +132,20 @@ class DeployFilesTests(TestCase):
         self.assertIn(f'root * {media}', caddy)  # Caddy serves the same folder Django writes to
         self.assertIn(media.rsplit('/', 1)[0], service)  # and the app may write there
 
+    def test_demo_refresh_timer_runs_the_existing_command(self):
+        service = (BASE / 'deploy' / 'coffeeshop-demo-refresh.service').read_text()
+        timer = (BASE / 'deploy' / 'coffeeshop-demo-refresh.timer').read_text()
+        self.assertIn('manage.py seed_demo --refresh-orders', service)
+        self.assertIn('Type=oneshot', service)
+        self.assertIn('EnvironmentFile=/etc/coffeeshop/env', service)
+        self.assertIn('ReadWritePaths=/var/lib/coffeeshop', service)  # same sandbox as the app
+        self.assertRegex(timer, r'OnCalendar=\*-\*-\* \d\d:\d\d:\d\d \S+')
+        self.assertIn('Persistent=true', timer)
+        self.assertIn('WantedBy=timers.target', timer)
+
     def test_deploy_docs_exist(self):
         text = (BASE / 'deploy' / 'README.md').read_text()
-        for needle in ('seed_demo', 'createsuperuser', 'deploy.sh', 'ALLOWED_HOSTS'):
+        for needle in ('seed_demo', 'createsuperuser', 'deploy.sh', 'ALLOWED_HOSTS', 'coffeeshop-demo-refresh.timer'):
             self.assertIn(needle, text)
 
 
