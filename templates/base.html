@@ -49,14 +49,6 @@
             data-nav-link
             >Contact</a
           >
-          {% if user.is_staff %}
-          <a
-            class="nav-link text-tertiary-fixed-dim"
-            href="{% url 'orders:dashboard' %}"
-            data-nav-link
-            >Dashboard</a
-          >
-          {% endif %}
         </div>
         <div class="flex items-center gap-md">
           <a
@@ -108,9 +100,6 @@
           data-nav-link
           >Contact</a
         >
-        {% if user.is_staff %}
-        <a class="nav-link text-tertiary-fixed-dim" href="{% url 'orders:dashboard' %}" data-nav-link>Dashboard</a>
-        {% endif %}
       </div>
     </nav>
 

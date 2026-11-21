@@ -1,10 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'dashboard/base.html' %}
 {% load static %}
-{% block title %}Dashboard - Coffee Shop{% endblock %}
-{% block page %}dashboard{% endblock %}
+{% block title %}Orders{% endblock %}
 {% block content %}
-<div class="pt-24 pb-xl px-margin-mobile md:px-lg max-w-[110rem] mx-auto w-full"
-     data-dashboard data-feed-url="{% url 'orders:dashboard_feed' %}">
+<div data-dashboard data-feed-url="{% url 'orders:dashboard_feed' %}">
   <div class="flex flex-wrap items-center justify-between gap-md mb-lg">
     <div>
       <h1 class="font-headline-md text-headline-md text-primary">Today's orders</h1>

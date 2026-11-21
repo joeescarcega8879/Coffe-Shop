@@ -376,3 +376,22 @@ body.cart-locked { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .tracker-step.is-current .tracker-dot, .dash-live i, .dash-card { animation: none !important; }
 }
+
+/* ---------- Standalone dashboard layout ---------- */
+.dash-tab {
+  display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0;
+  color: rgba(255, 255, 255, 0.7); border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s; white-space: nowrap;
+}
+.dash-tab:hover { color: #fff; }
+.dash-tab.is-active { color: #fff; border-bottom-color: #c08552; font-weight: 700; }
+.dash-prod-actions form { display: inline; }
+.dash-pill {
+  display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 9999px;
+  padding: 0.25rem 0.7rem; font-size: 0.8rem; font-weight: 700; transition: transform 0.15s;
+}
+.dash-pill:active { transform: scale(0.95); }
+.dash-pill-on { background: #dcead7; color: #2d4a2a; }
+.dash-pill-off { background: #ececec; color: #666; }
+.dash-star-on { color: #c08552; }
+.dash-star-off { color: rgba(62, 39, 35, 0.3); }

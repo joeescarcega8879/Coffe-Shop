@@ -474,10 +474,12 @@ class DashboardTests(BaseTest):
         self.assertEqual(self.client.get(reverse('orders:dashboard_feed')).json(),
                          {'latest_id': 0, 'pending': 0})
 
-    def test_dashboard_link_visible_only_to_staff(self):
-        self.assertNotContains(self.client.get(reverse('menu:home')), reverse('orders:dashboard'))
+    def test_customer_site_never_shows_a_dashboard_link(self):
+        # The dashboard is a separate space: even staff browsing the shop see no link to it
+        home = reverse('menu:home')
+        self.assertNotContains(self.client.get(home), reverse('orders:dashboard'))
         self.client.force_login(self.staff)
-        self.assertContains(self.client.get(reverse('menu:home')), reverse('orders:dashboard'))
+        self.assertNotContains(self.client.get(home), reverse('orders:dashboard'))
 
 
 class MigrationDataTests(TestCase):

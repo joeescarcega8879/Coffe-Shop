@@ -58,6 +58,10 @@ Open `https://your-domain` — the certificate is issued on the first visit.
 
 ## Updating
 
+If the update changes `deploy/Caddyfile` (the commit message or `git log` will say so), also run:
+`sudo cp /srv/coffeeshop/app/deploy/Caddyfile /etc/caddy/Caddyfile && sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy`
+(`deploy.sh` does not touch Caddy or systemd files.)
+
 ```bash
 cd /srv/coffeeshop/app && ./deploy/deploy.sh
 ```

@@ -155,6 +155,8 @@ see **[deploy/README.md](deploy/README.md)** for the step-by-step guide.
 - With `DEBUG=False` the app enables HTTPS redirect, secure cookies and HSTS;
   `python manage.py check --deploy` is part of the test suite.
 - Static files are served by WhiteNoise; uploaded media by the web server.
+- The owner dashboard (`/dashboard/`) is a separate staff-only space: live orders, product management
+  (add/edit/hide/feature/delete, photo upload with automatic resizing) and a store open/close switch.
 - Checkout and contact form are rate limited per client IP (10 / 5 requests per hour).
 - Update a running server with `./deploy/deploy.sh` (backs up the DB, migrates, restarts, health-checks).
 

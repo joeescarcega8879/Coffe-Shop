@@ -3,6 +3,11 @@
 coffee-demo.duckdns.org {
 	encode zstd gzip
 
+	# Product photo uploads are limited to 5 MB in the app; refuse anything much bigger early
+	request_body {
+		max_size 8MB
+	}
+
 	# Uploaded / demo product photos
 	handle_path /media/* {
 		root * /var/lib/coffeeshop/media

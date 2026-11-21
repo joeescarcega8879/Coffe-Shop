@@ -132,6 +132,12 @@ class DeployFilesTests(TestCase):
         self.assertIn(f'root * {media}', caddy)  # Caddy serves the same folder Django writes to
         self.assertIn(media.rsplit('/', 1)[0], service)  # and the app may write there
 
+    def test_caddy_upload_limit_is_not_below_the_app_photo_limit(self):
+        from menu.images import MAX_UPLOAD_BYTES
+        caddy = (BASE / 'deploy' / 'Caddyfile').read_text()
+        limit_mb = int(re.search(r'max_size (\d+)MB', caddy).group(1))
+        self.assertGreater(limit_mb * 1024 * 1024, MAX_UPLOAD_BYTES)  # room for form fields on top of the photo
+
     def test_demo_refresh_timer_runs_the_existing_command(self):
         service = (BASE / 'deploy' / 'coffeeshop-demo-refresh.service').read_text()
         timer = (BASE / 'deploy' / 'coffeeshop-demo-refresh.timer').read_text()
