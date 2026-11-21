@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.http import JsonResponse
@@ -13,7 +14,7 @@ from core.ratelimit import rate_limit
 from menu.models import MenuItem
 
 from .cart import Cart
-from .forms import CheckoutForm
+from .forms import CheckoutForm, StoreSettingsForm
 from .emails import send_order_emails
 from .models import Order, OrderItem, StoreSettings
 
@@ -200,6 +201,20 @@ def dashboard_toggle_store(request):
     store.accepting_orders = not store.accepting_orders
     store.save(update_fields=['accepting_orders'])
     return redirect('orders:dashboard')
+
+
+@dashboard_required
+def dashboard_settings(request):
+    store = StoreSettings.load()
+    form = StoreSettingsForm(request.POST or None, instance=store)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Settings saved.')
+        return redirect('orders:dashboard_settings')
+    return render(request, 'dashboard/settings.html', {
+        'form': form, 'store': store, 'is_open': store.is_open_now(),
+        'time_zone': settings.TIME_ZONE,
+    })
 
 
 @dashboard_required

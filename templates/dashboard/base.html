@@ -27,7 +27,7 @@
           <a href="{% url 'menu:dash_products' %}" class="dash-tab {% if 'product' in view %}is-active{% endif %}">
             <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">restaurant_menu</span> Products
           </a>
-          <a href="{% url 'admin:orders_storesettings_change' 1 %}" class="dash-tab" title="Opening hours, alert email…">
+          <a href="{% url 'orders:dashboard_settings' %}" class="dash-tab {% if view == 'dashboard_settings' %}is-active{% endif %}" title="Opening hours, alert email…">
             <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px">settings</span> Settings
           </a>
         </nav>

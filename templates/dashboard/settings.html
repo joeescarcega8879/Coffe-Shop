@@ -1,0 +1,78 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center justify-between gap-md mb-lg">
+    <h1 class="font-headline-md text-headline-md text-primary">Settings</h1>
+    <span class="inline-flex items-center gap-xs rounded-full px-md py-xs text-sm font-bold {% if is_open %}bg-tertiary-container text-on-tertiary{% else %}bg-error-container text-on-error-container{% endif %}" data-store-state>
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:18px">{% if is_open %}storefront{% else %}do_not_disturb_on{% endif %}</span>
+      {% if is_open %}Taking orders now{% else %}Closed right now{% endif %}
+    </span>
+  </div>
+
+  <form method="post" class="flex flex-col gap-md" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div role="alert" class="rounded-lg bg-error-container text-on-error-container p-md">{{ form.non_field_errors }}</div>{% endif %}
+
+    <section class="bg-surface-container-lowest rounded-xl soft-shadow p-lg">
+      <h2 class="font-headline-sm text-headline-sm text-primary mb-md">Orders</h2>
+      <label class="dash-switch">
+        {{ form.accepting_orders }}<span class="track" aria-hidden="true"></span>
+        <span><strong class="block">Accept online orders</strong>
+          <span class="text-sm text-on-surface-variant">Turn this off to pause orders (for example when the kitchen is overwhelmed). Customers will see your closed message.</span></span>
+      </label>
+    </section>
+
+    <section class="bg-surface-container-lowest rounded-xl soft-shadow p-lg flex flex-col gap-md">
+      <h2 class="font-headline-sm text-headline-sm text-primary">Opening hours</h2>
+      <label class="dash-switch">
+        {{ form.enforce_hours }}<span class="track" aria-hidden="true"></span>
+        <span><strong class="block">Only take orders during opening hours</strong>
+          <span class="text-sm text-on-surface-variant">When off, the shop is open whenever “Accept online orders” is on. Times use the shop time zone ({{ time_zone }}).</span></span>
+      </label>
+      <div class="dash-section grid grid-cols-2 gap-md" data-hours>
+        <div>
+          <label for="{{ form.opening_time.id_for_label }}" class="font-label-bold text-label-bold">Opens at</label>
+          {{ form.opening_time }}
+          {% for e in form.opening_time.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
+        </div>
+        <div>
+          <label for="{{ form.closing_time.id_for_label }}" class="font-label-bold text-label-bold">Closes at</label>
+          {{ form.closing_time }}
+          {% for e in form.closing_time.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-surface-container-lowest rounded-xl soft-shadow p-lg flex flex-col gap-md">
+      <h2 class="font-headline-sm text-headline-sm text-primary">Messages</h2>
+      <div>
+        <label for="{{ form.closed_message.id_for_label }}" class="font-label-bold text-label-bold">Message shown when closed</label>
+        {{ form.closed_message }}
+        {% for e in form.closed_message.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
+      </div>
+      <div>
+        <label for="{{ form.notify_email.id_for_label }}" class="font-label-bold text-label-bold">Send new-order alerts to</label>
+        {{ form.notify_email }}
+        <p class="text-sm text-on-surface-variant mt-xs">Optional. Leave empty to turn alerts off. Emails are only delivered once email sending is configured on the server.</p>
+        {% for e in form.notify_email.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
+      </div>
+    </section>
+
+    <div class="flex gap-md">
+      <button class="bg-primary-container text-on-primary font-label-bold text-label-bold py-md px-lg rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">Save settings</button>
+      <a href="{% url 'orders:dashboard' %}" class="dash-btn dash-btn-ghost inline-flex items-center px-lg">Back to orders</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  (() => {
+    const box = document.querySelector('[name="enforce_hours"]');
+    const hours = document.querySelector('[data-hours]');
+    const sync = () => { hours.inert = !box.checked; };   // inert fields are still submitted
+    box.addEventListener('change', sync); sync();
+  })();
+</script>
+{% endblock %}

@@ -507,3 +507,53 @@ class MigrationDataTests(TestCase):
         for i in range(3):
             Order.objects.create(customer_name=f'C{i}', phone='1')
         self.assertEqual(len({o.token for o in Order.objects.all()}), 3)
+
+
+class DashboardSettingsTests(BaseTest):
+    """Owner settings screen (replaces the admin form for StoreSettings)."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.staff = get_user_model().objects.create_user('boss', password='x', is_staff=True)
+        self.url = reverse('orders:dashboard_settings')
+        self.valid = {'accepting_orders': 'on', 'opening_time': '08:00', 'closing_time': '18:30',
+                      'closed_message': 'Back soon!', 'notify_email': 'owner@example.com'}
+
+    def test_requires_staff(self):
+        r = self.client.get(self.url)
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/dashboard/login/', r['Location'])
+
+    def test_page_renders_current_values(self):
+        self.client.force_login(self.staff)
+        r = self.client.get(self.url)
+        self.assertContains(r, 'Opens at')
+        self.assertContains(r, 'name="accepting_orders"')
+        self.assertContains(r, 'Taking orders now')
+
+    def test_saves_changes(self):
+        self.client.force_login(self.staff)
+        r = self.client.post(self.url, {**self.valid, 'enforce_hours': 'on'})
+        self.assertRedirects(r, self.url)
+        s = StoreSettings.load()
+        self.assertTrue(s.enforce_hours)
+        self.assertEqual(s.closing_time.strftime('%H:%M'), '18:30')
+        self.assertEqual(s.closed_message, 'Back soon!')
+        self.assertEqual(s.notify_email, 'owner@example.com')
+
+    def test_unchecking_accept_orders_pauses_the_shop(self):
+        self.client.force_login(self.staff)
+        data = dict(self.valid); data.pop('accepting_orders')
+        self.client.post(self.url, data)
+        self.assertFalse(StoreSettings.load().accepting_orders)
+
+    def test_same_open_and_close_time_is_rejected_when_hours_enforced(self):
+        self.client.force_login(self.staff)
+        r = self.client.post(self.url, {**self.valid, 'enforce_hours': 'on', 'closing_time': '08:00'})
+        self.assertContains(r, "can&#x27;t be the same")
+
+    def test_invalid_email_is_rejected(self):
+        self.client.force_login(self.staff)
+        r = self.client.post(self.url, {**self.valid, 'notify_email': 'not-an-email'})
+        self.assertEqual(r.status_code, 200)
+        self.assertNotEqual(StoreSettings.load().notify_email, 'not-an-email')

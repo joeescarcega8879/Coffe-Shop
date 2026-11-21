@@ -21,6 +21,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/login/', rate_limit('login', limit=10, window=900)(DashboardLoginView.as_view()), name='dashboard_login'),
     path('dashboard/logout/', LogoutView.as_view(next_page=reverse_lazy('orders:dashboard')), name='dashboard_logout'),
+    path('dashboard/settings/', views.dashboard_settings, name='dashboard_settings'),
     path('dashboard/feed/', views.dashboard_feed, name='dashboard_feed'),
     path('dashboard/store/toggle/', views.dashboard_toggle_store, name='dashboard_toggle_store'),
     path('dashboard/<int:pk>/status/', views.dashboard_set_status, name='dashboard_status'),

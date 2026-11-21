@@ -70,7 +70,7 @@ class StandaloneLayoutTests(DashBase):
         self.login()
         html = self.client.get(reverse('orders:dashboard')).content.decode()
         for url in (reverse('orders:dashboard'), reverse('menu:dash_products'),
-                    reverse('admin:orders_storesettings_change', args=[1]), reverse('orders:dashboard_logout')):
+                    reverse('orders:dashboard_settings'), reverse('orders:dashboard_logout')):
             self.assertIn(url, html)
 
     def test_active_tab_is_highlighted(self):

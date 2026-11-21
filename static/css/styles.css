@@ -491,3 +491,14 @@ nav :focus-visible, .dash-tab:focus-visible { outline-color: #fbb981; }
 @media (prefers-reduced-motion: reduce) {
   .order-ready-banner, .order-ready-banner .material-symbols-outlined, .order-alert-icon, .order-pill-dot { animation: none !important; }
 }
+
+/* ---------- Dashboard settings: toggle switch ---------- */
+.dash-switch { display: flex; align-items: flex-start; gap: 0.9rem; cursor: pointer; }
+.dash-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.dash-switch .track { flex: none; position: relative; width: 2.9rem; height: 1.7rem; border-radius: 9999px; background: #b9aaa6; transition: background 0.25s; margin-top: 0.1rem; }
+.dash-switch .track::after { content: ""; position: absolute; top: 0.2rem; left: 0.2rem; width: 1.3rem; height: 1.3rem; border-radius: 9999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform 0.3s var(--ease-spring); }
+.dash-switch input:checked + .track { background: #4c7a4f; }
+.dash-switch input:checked + .track::after { transform: translateX(1.2rem); }
+.dash-switch input:focus-visible + .track { outline: 3px solid #c08552; outline-offset: 2px; }
+.dash-section[inert] { opacity: 0.45; }
+@media (prefers-reduced-motion: reduce) { .dash-switch .track, .dash-switch .track::after { transition: none; } }
