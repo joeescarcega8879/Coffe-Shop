@@ -28,3 +28,12 @@ Each was cropped to 3:2 and resized to 900x600. Licenses: CC0 / Public domain / 
 | macarons.jpg | Des macarons de chez Bouillet (mars 2023).jpg | Benoît Prieur | CC0 | <https://commons.wikimedia.org/wiki/File:Des_macarons_de_chez_Bouillet_(mars_2023).jpg> |
 | cortado.jpg | Cortado - LOAM 2023-08-22.jpg | Andy Li | CC0 | <https://commons.wikimedia.org/wiki/File:Cortado_-_LOAM_2023-08-22.jpg> |
 | waffles.jpg | Waffles with Strawberries.jpg | Parkerman & Christie from San Diego, USA | CC BY 2.0 | <https://commons.wikimedia.org/wiki/File:Waffles_with_Strawberries.jpg> |
+| orange-juice.jpg | Orange juice 1 edit1.jpg | Agency of the United States Department of Agriculture
+Edited | Public domain | <https://commons.wikimedia.org/wiki/File:Orange_juice_1_edit1.jpg> |
+| french-toast.jpg | French toast 001.jpg | Ocdp | CC0 | <https://commons.wikimedia.org/wiki/File:French_toast_001.jpg> |
+| omelette.jpg | Eggs omelette.jpg | Renee Comet (Photographer) | Public domain | <https://commons.wikimedia.org/wiki/File:Eggs_omelette.jpg> |
+| jasmine-tea.jpg | White cup with green tea in it.jpg | Douglas P Perkins | CC BY 3.0 | <https://commons.wikimedia.org/wiki/File:White_cup_with_green_tea_in_it.jpg> |
+| earl-grey.jpg | Cup of Earl Gray.jpg | David Wilmot (daramot) from Wimbledon, United Kingdom | CC BY 2.0 | <https://commons.wikimedia.org/wiki/File:Cup_of_Earl_Gray.jpg> |
+| chamomile.jpg | Herbal Tea 04.jpg | PagesAndPathsPH | CC0 | <https://commons.wikimedia.org/wiki/File:Herbal_Tea_04.jpg> |
+| mint-tea.jpg | مشروب شاى النعناع.jpg | Marwa Siddig Aljally Altaueb | CC0 | <https://commons.wikimedia.org/wiki/File:%D9%85%D8%B4%D8%B1%D9%88%D8%A8_%D8%B4%D8%A7%D9%89_%D8%A7%D9%84%D9%86%D8%B9%D9%86%D8%A7%D8%B9.jpg> |
+| hibiscus-tea.jpg | A glass of hibiscus tea 01.jpg | claralieu | CC BY 2.0 | <https://commons.wikimedia.org/wiki/File:A_glass_of_hibiscus_tea_01.jpg> |
