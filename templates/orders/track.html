@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Order #{{ order.pk }} - Coffee Shop{% endblock %}
+{% block page %}cart{% endblock %}
+{% block content %}
+<div class="pt-24 pb-xl px-margin-mobile md:px-lg max-w-container-max mx-auto w-full"
+     data-track data-status-url="{% url 'orders:track_status' order.token %}" data-status="{{ order.status }}">
+  <div class="max-w-2xl mx-auto">
+    <p class="text-on-surface-variant text-center">Order #{{ order.pk }} · {{ order.get_order_type_display }}</p>
+    <h1 class="font-headline-md text-headline-md text-primary text-center mt-xs" data-track-label aria-live="polite">{{ order.get_status_display }}</h1>
+    <p class="text-center text-on-surface-variant mt-xs" data-track-hint>
+      {% if order.status == 'pending' %}We got your order and will start it shortly.
+      {% elif order.status == 'preparing' %}Your order is being prepared.
+      {% elif order.status == 'ready' %}Your order is ready — come and get it!
+      {% elif order.status == 'completed' %}Enjoy! Thanks for visiting.
+      {% else %}This order was cancelled. Please contact us if this is a mistake.{% endif %}
+    </p>
+
+    <div data-track-cancelled class="mt-lg rounded-lg bg-error-container text-on-error-container p-md text-center" {% if order.status != 'cancelled' %}hidden{% endif %}>
+      Order cancelled
+    </div>
+
+    <ol class="tracker mt-xl" data-tracker {% if order.status == 'cancelled' %}hidden{% endif %}>
+      {% for key, label in steps %}
+      <li class="tracker-step {% if forloop.counter0 < order.step %}is-done{% elif forloop.counter0 == order.step %}is-current{% endif %}" data-step-index="{{ forloop.counter0 }}">
+        <span class="tracker-dot">
+          <span class="material-symbols-outlined">{% if key == 'pending' %}receipt_long{% elif key == 'preparing' %}coffee_maker{% elif key == 'ready' %}shopping_bag{% else %}task_alt{% endif %}</span>
+        </span>
+        <span class="tracker-label">{{ label }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+
+    <div class="bg-surface-container-lowest rounded-xl soft-shadow p-lg mt-xl">
+      <h2 class="font-headline-sm text-headline-sm text-primary mb-md">Your order</h2>
+      {% for it in order.items.all %}
+      <div class="flex justify-between py-xs"><span>{{ it.quantity }} × {{ it.name }}</span><span>${{ it.subtotal|floatformat:2 }}</span></div>
+      {% endfor %}
+      <div class="flex justify-between border-t border-outline-variant/20 mt-md pt-md font-label-bold text-label-bold">
+        <span>Total</span><span>${{ order.total|floatformat:2 }}</span>
+      </div>
+    </div>
+    <p class="text-center mt-lg"><a href="{% url 'menu:menu_list' %}" class="text-secondary underline">Back to menu</a></p>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/track.js' %}"></script>{% endblock %}

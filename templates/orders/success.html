@@ -13,6 +13,12 @@
     <li>{{ it.quantity }} × {{ it.name }}</li>
     {% endfor %}
   </ul>
+  <div class="mt-lg">
+    <a href="{{ order.get_absolute_url }}" class="inline-flex items-center gap-xs bg-primary-container text-on-primary font-label-bold text-label-bold py-md px-lg rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
+      <span class="material-symbols-outlined" style="font-size:20px">receipt_long</span> Track your order
+    </a>
+  </div>
+  {% if order.email %}<p class="text-on-surface-variant mt-md">We sent a confirmation to {{ order.email }}.</p>{% endif %}
   <div class="mt-lg"><a href="{% url 'menu:menu_list' %}" class="text-secondary underline">Back to menu</a></div>
 </div>
 {% endblock %}

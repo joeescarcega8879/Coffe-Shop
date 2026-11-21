@@ -13,7 +13,10 @@
       {% for error in field.errors %}<p class="text-error">{{ error }}</p>{% endfor %}
     </div>
     {% endfor %}
-    <button class="bg-primary-container text-on-primary font-label-bold text-label-bold py-md rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
+    {% if not store_open %}
+    <p class="rounded-lg bg-error-container text-on-error-container p-md" data-store-closed>{{ store_closed_message }}</p>
+    {% endif %}
+    <button {% if not store_open %}disabled{% endif %} class="bg-primary-container text-on-primary font-label-bold text-label-bold py-md rounded-lg hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:pointer-events-none">
       Place order
     </button>
   </form>

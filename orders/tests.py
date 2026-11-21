@@ -167,3 +167,321 @@ class SuccessTests(BaseTest):
         r = self.client.get(reverse('orders:success'))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.context['order'], Order.objects.get())
+
+
+class AdminTests(BaseTest):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.client.force_login(get_user_model().objects.create_superuser('admin', 'a@a.com', 'x'))
+        self.add(self.espresso, 2)
+        self.client.post(reverse('orders:checkout'), CheckoutTests.data)
+        self.order = Order.objects.get()
+
+    def test_changelist_and_detail_render(self):
+        r = self.client.get(reverse('admin:orders_order_changelist'))
+        self.assertContains(r, 'Ana')
+        r = self.client.get(reverse('admin:orders_order_change', args=[self.order.pk]))
+        self.assertContains(r, '$5.00')
+
+    def test_bulk_action_updates_status(self):
+        self.client.post(reverse('admin:orders_order_changelist'), {
+            'action': 'mark_ready', '_selected_action': [self.order.pk]})
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.READY)
+
+
+# ---------------------------------------------------------------------------
+# Store settings (open / closed)
+# ---------------------------------------------------------------------------
+
+from datetime import datetime, time, timezone as dt_tz
+
+from django.core import mail
+from django.contrib.auth import get_user_model
+
+from .models import StoreSettings
+
+
+def at(hour, minute=0):
+    return datetime(2026, 1, 1, hour, minute, tzinfo=dt_tz.utc)
+
+
+class StoreSettingsModelTests(TestCase):
+    def test_load_creates_singleton(self):
+        a = StoreSettings.load()
+        b = StoreSettings.load()
+        self.assertEqual(a.pk, b.pk)
+        self.assertEqual(StoreSettings.objects.count(), 1)
+
+    def test_save_always_uses_pk_1(self):
+        StoreSettings(accepting_orders=False).save()
+        StoreSettings(accepting_orders=True).save()
+        self.assertEqual(StoreSettings.objects.count(), 1)
+
+    def test_open_by_default_even_at_night(self):
+        self.assertTrue(StoreSettings.load().is_open_now(at(3)))
+
+    def test_paused_is_closed(self):
+        s = StoreSettings(accepting_orders=False)
+        self.assertFalse(s.is_open_now(at(12)))
+
+    def test_hours_enforced(self):
+        s = StoreSettings(enforce_hours=True, opening_time=time(7), closing_time=time(20))
+        self.assertTrue(s.is_open_now(at(12)))
+        self.assertTrue(s.is_open_now(at(7, 0)))
+        self.assertFalse(s.is_open_now(at(20, 0)))
+        self.assertFalse(s.is_open_now(at(3)))
+
+    def test_overnight_window(self):
+        s = StoreSettings(enforce_hours=True, opening_time=time(18), closing_time=time(2))
+        self.assertTrue(s.is_open_now(at(23)))
+        self.assertTrue(s.is_open_now(at(1)))
+        self.assertFalse(s.is_open_now(at(12)))
+
+    def test_hours_ignored_when_not_enforced(self):
+        s = StoreSettings(enforce_hours=False, opening_time=time(7), closing_time=time(8))
+        self.assertTrue(s.is_open_now(at(15)))
+
+
+class StoreClosedTests(BaseTest):
+    def close_store(self):
+        StoreSettings.objects.update_or_create(pk=1, defaults={
+            'accepting_orders': False, 'closed_message': 'Back at 7am!'})
+
+    def test_banner_shown_when_closed(self):
+        self.close_store()
+        self.assertContains(self.client.get(reverse('menu:home')), 'Back at 7am!')
+
+    def test_banner_hidden_when_open(self):
+        self.assertNotContains(self.client.get(reverse('menu:home')), 'store-closed-bar"')
+
+    def test_checkout_page_disables_button_when_closed(self):
+        self.add(self.espresso)
+        self.close_store()
+        r = self.client.get(reverse('orders:checkout'))
+        self.assertContains(r, 'data-store-closed')
+        self.assertContains(r, 'disabled')
+
+    def test_checkout_post_blocked_when_closed(self):
+        self.add(self.espresso)
+        self.close_store()
+        r = self.client.post(reverse('orders:checkout'), CheckoutTests.data)
+        self.assertRedirects(r, reverse('orders:cart'))
+        self.assertFalse(Order.objects.exists())
+        self.assertIn('cart', self.client.session)  # cart is kept
+
+    def test_checkout_works_again_after_reopening(self):
+        self.add(self.espresso)
+        self.close_store()
+        StoreSettings.objects.update(accepting_orders=True)
+        r = self.client.post(reverse('orders:checkout'), CheckoutTests.data)
+        self.assertRedirects(r, reverse('orders:success'))
+
+
+# ---------------------------------------------------------------------------
+# Emails
+# ---------------------------------------------------------------------------
+
+class EmailTests(BaseTest):
+    def place(self, **overrides):
+        self.add(self.espresso, 2)
+        return self.client.post(reverse('orders:checkout'), {**CheckoutTests.data, **overrides})
+
+    def test_customer_confirmation_sent_with_tracking_link(self):
+        with self.captureOnCommitCallbacks(execute=True):
+            self.place(email='ana@example.com')
+        self.assertEqual(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertEqual(msg.to, ['ana@example.com'])
+        order = Order.objects.get()
+        self.assertIn(str(order.token), msg.body)
+        self.assertIn('2 x Espresso', msg.body)
+        self.assertIn('$5.00', msg.body)
+
+    def test_no_customer_email_when_blank(self):
+        with self.captureOnCommitCallbacks(execute=True):
+            self.place(email='')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_owner_alert_sent_when_configured(self):
+        StoreSettings.objects.update_or_create(pk=1, defaults={'notify_email': 'owner@shop.com'})
+        with self.captureOnCommitCallbacks(execute=True):
+            self.place(email='ana@example.com')
+        recipients = sorted(m.to[0] for m in mail.outbox)
+        self.assertEqual(recipients, ['ana@example.com', 'owner@shop.com'])
+        owner_msg = next(m for m in mail.outbox if m.to == ['owner@shop.com'])
+        self.assertIn('New order', owner_msg.subject)
+
+    def test_no_email_when_validation_fails(self):
+        with self.captureOnCommitCallbacks(execute=True):
+            self.place(customer_name='', email='ana@example.com')
+        self.assertEqual(len(mail.outbox), 0)
+
+
+# ---------------------------------------------------------------------------
+# Order tracking
+# ---------------------------------------------------------------------------
+
+class TrackingTests(BaseTest):
+    def setUp(self):
+        self.add(self.espresso, 2)
+        self.client.post(reverse('orders:checkout'), CheckoutTests.data)
+        self.order = Order.objects.get()
+        self.client.logout()  # tracking must work for anyone holding the link
+
+    def test_token_is_unique_and_url_uses_it(self):
+        self.assertIn(str(self.order.token), self.order.get_absolute_url())
+
+    def test_track_page_renders_for_anonymous(self):
+        from django.test import Client
+        r = Client().get(self.order.get_absolute_url())
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'Espresso')
+        self.assertContains(r, 'Pending')
+
+    def test_unknown_token_404(self):
+        import uuid
+        r = self.client.get(reverse('orders:track', args=[uuid.uuid4()]))
+        self.assertEqual(r.status_code, 404)
+
+    def test_numeric_id_is_not_a_valid_route(self):
+        # Orders must not be guessable by sequential id
+        self.assertEqual(self.client.get(f'/track/{self.order.pk}/').status_code, 404)
+
+    def test_status_endpoint_reflects_changes(self):
+        url = reverse('orders:track_status', args=[self.order.token])
+        self.assertEqual(self.client.get(url).json(),
+                         {'status': 'pending', 'label': 'Pending', 'step': 0, 'done': False})
+        Order.objects.update(status=Order.Status.READY)
+        data = self.client.get(url).json()
+        self.assertEqual((data['status'], data['step'], data['done']), ('ready', 2, False))
+
+    def test_done_flag_for_completed_and_cancelled(self):
+        url = reverse('orders:track_status', args=[self.order.token])
+        for status in ('completed', 'cancelled'):
+            Order.objects.update(status=status)
+            self.assertTrue(self.client.get(url).json()['done'])
+
+    def test_cancelled_step_is_minus_one(self):
+        Order.objects.update(status=Order.Status.CANCELLED)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.step, -1)
+        self.assertContains(self.client.get(self.order.get_absolute_url()), 'Order cancelled')
+
+    def test_success_page_links_to_tracking(self):
+        self.add(self.espresso)
+        self.client.post(reverse('orders:checkout'), CheckoutTests.data)
+        r = self.client.get(reverse('orders:success'))
+        newest = Order.objects.first()
+        self.assertContains(r, newest.get_absolute_url())
+
+
+# ---------------------------------------------------------------------------
+# Owner dashboard
+# ---------------------------------------------------------------------------
+
+class DashboardTests(BaseTest):
+    def setUp(self):
+        self.add(self.espresso, 2)
+        self.client.post(reverse('orders:checkout'), CheckoutTests.data)
+        self.order = Order.objects.get()
+        self.client.logout()
+        self.staff = get_user_model().objects.create_user('staff', password='x', is_staff=True)
+        self.regular = get_user_model().objects.create_user('regular', password='x')
+
+    def urls(self):
+        return [
+            reverse('orders:dashboard'),
+            reverse('orders:dashboard_feed'),
+        ]
+
+    def test_anonymous_redirected_to_login(self):
+        for url in self.urls():
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 302, url)
+            self.assertIn('login', r['Location'])
+
+    def test_non_staff_cannot_access(self):
+        self.client.force_login(self.regular)
+        for url in self.urls():
+            self.assertEqual(self.client.get(url).status_code, 302, url)
+
+    def test_non_staff_cannot_change_status_or_toggle_store(self):
+        self.client.force_login(self.regular)
+        self.client.post(reverse('orders:dashboard_status', args=[self.order.pk]), {'status': 'ready'})
+        self.client.post(reverse('orders:dashboard_toggle_store'))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'pending')
+        self.assertTrue(StoreSettings.load().accepting_orders)
+
+    def test_staff_sees_todays_orders_and_totals(self):
+        self.client.force_login(self.staff)
+        r = self.client.get(reverse('orders:dashboard'))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'Ana')
+        self.assertContains(r, '$5.00')
+        self.assertEqual(r.context['today_count'], 1)
+
+    def test_old_orders_not_listed_and_cancelled_not_counted(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        Order.objects.filter(pk=self.order.pk).update(created_at=timezone.now() - timedelta(days=2))
+        self.client.force_login(self.staff)
+        r = self.client.get(reverse('orders:dashboard'))
+        self.assertEqual(r.context['today_count'], 0)
+        self.assertNotContains(r, 'data-order-id')
+
+    def test_staff_advances_status(self):
+        self.client.force_login(self.staff)
+        r = self.client.post(reverse('orders:dashboard_status', args=[self.order.pk]), {'status': 'preparing'})
+        self.assertRedirects(r, reverse('orders:dashboard'))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'preparing')
+
+    def test_invalid_status_ignored(self):
+        self.client.force_login(self.staff)
+        self.client.post(reverse('orders:dashboard_status', args=[self.order.pk]), {'status': 'hacked'})
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'pending')
+
+    def test_status_change_requires_post(self):
+        self.client.force_login(self.staff)
+        r = self.client.get(reverse('orders:dashboard_status', args=[self.order.pk]))
+        self.assertEqual(r.status_code, 405)
+
+    def test_customer_sees_status_change_made_by_staff(self):
+        self.client.force_login(self.staff)
+        self.client.post(reverse('orders:dashboard_status', args=[self.order.pk]), {'status': 'ready'})
+        self.client.logout()
+        data = self.client.get(reverse('orders:track_status', args=[self.order.token])).json()
+        self.assertEqual(data['status'], 'ready')
+
+    def test_toggle_store(self):
+        self.client.force_login(self.staff)
+        self.client.post(reverse('orders:dashboard_toggle_store'))
+        self.assertFalse(StoreSettings.load().accepting_orders)
+        self.client.post(reverse('orders:dashboard_toggle_store'))
+        self.assertTrue(StoreSettings.load().accepting_orders)
+
+    def test_feed_reports_latest_and_pending(self):
+        self.client.force_login(self.staff)
+        data = self.client.get(reverse('orders:dashboard_feed')).json()
+        self.assertEqual(data, {'latest_id': self.order.pk, 'pending': 1})
+
+    def test_feed_empty(self):
+        Order.objects.all().delete()
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get(reverse('orders:dashboard_feed')).json(),
+                         {'latest_id': 0, 'pending': 0})
+
+    def test_dashboard_link_visible_only_to_staff(self):
+        self.assertNotContains(self.client.get(reverse('menu:home')), reverse('orders:dashboard'))
+        self.client.force_login(self.staff)
+        self.assertContains(self.client.get(reverse('menu:home')), reverse('orders:dashboard'))
+
+
+class MigrationDataTests(TestCase):
+    def test_each_order_gets_a_distinct_token(self):
+        for i in range(3):
+            Order.objects.create(customer_name=f'C{i}', phone='1')
+        self.assertEqual(len({o.token for o in Order.objects.all()}), 3)

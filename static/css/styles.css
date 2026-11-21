@@ -326,3 +326,53 @@ body.cart-locked { overflow: hidden; }
   transform: scale(1.15) rotate(360deg);
   transition-duration: 0.5s;
 }
+
+/* ============================================================
+   Store closed bar, order tracker, owner dashboard
+   ============================================================ */
+.store-closed-bar {
+  position: fixed; top: 4rem; left: 0; right: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  padding: 0.35rem 1rem; font-size: 0.85rem;
+  background: #f4d9c6; color: #5c2f12; border-bottom: 1px solid rgba(92, 47, 18, 0.15);
+}
+
+.tracker { display: flex; justify-content: space-between; position: relative; list-style: none; padding: 0; }
+.tracker::before {
+  content: ''; position: absolute; top: 1.6rem; left: 12.5%; right: 12.5%; height: 4px;
+  background: rgba(62, 39, 35, 0.12); border-radius: 4px;
+}
+.tracker-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; position: relative; z-index: 1; text-align: center; }
+.tracker-dot {
+  width: 3.2rem; height: 3.2rem; border-radius: 9999px; display: grid; place-items: center;
+  background: #f1e9e4; color: rgba(62, 39, 35, 0.4);
+  transition: background 0.4s var(--ease-out), color 0.4s var(--ease-out), transform 0.4s var(--ease-spring);
+}
+.tracker-label { font-size: 0.85rem; color: rgba(62, 39, 35, 0.55); transition: color 0.3s; }
+.tracker-step.is-done .tracker-dot { background: #c08552; color: #fff; }
+.tracker-step.is-done .tracker-label { color: #3e2723; }
+.tracker-step.is-current .tracker-dot { background: #3e2723; color: #fff; transform: scale(1.12); animation: trackerPulse 1.8s ease-out infinite; }
+.tracker-step.is-current .tracker-label { color: #3e2723; font-weight: 700; }
+@keyframes trackerPulse {
+  0% { box-shadow: 0 0 0 0 rgba(192, 133, 82, 0.55); }
+  100% { box-shadow: 0 0 0 16px rgba(192, 133, 82, 0); }
+}
+@media (max-width: 480px) { .tracker-dot { width: 2.6rem; height: 2.6rem; } .tracker::before { top: 1.3rem; } .tracker-label { font-size: 0.72rem; } }
+
+.dash-board { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); align-items: start; }
+.dash-col { background: rgba(62, 39, 35, 0.04); border-radius: 0.9rem; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; min-height: 8rem; }
+.dash-col-title { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: #3e2723; padding: 0.15rem 0.25rem; }
+.dash-col-title b { background: #3e2723; color: #fff; border-radius: 9999px; font-size: 0.75rem; padding: 0.05rem 0.55rem; }
+.dash-col[data-col="pending"] .dash-col-title b { background: #c08552; }
+.dash-card { background: #fff; border-radius: 0.7rem; padding: 0.8rem; box-shadow: 0 2px 8px rgba(62, 39, 35, 0.08); animation: fadeInUp 0.35s var(--ease-out) both; }
+.dash-note { font-style: italic; font-size: 0.85rem; color: rgba(62, 39, 35, 0.75); background: #faf3ee; border-radius: 0.4rem; padding: 0.3rem 0.5rem; }
+.dash-empty { text-align: center; font-size: 0.85rem; color: rgba(62, 39, 35, 0.4); padding: 0.75rem 0; }
+.dash-btn { background: #3e2723; color: #fff; border-radius: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.85rem; font-weight: 700; transition: transform 0.15s; }
+.dash-btn:active { transform: scale(0.95); }
+.dash-btn-ghost { background: transparent; color: #3e2723; border: 1px solid rgba(62, 39, 35, 0.25); }
+.dash-live { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: rgba(62, 39, 35, 0.6); }
+.dash-live i { width: 0.55rem; height: 0.55rem; border-radius: 9999px; background: #4caf50; animation: trackerPulse 1.8s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tracker-step.is-current .tracker-dot, .dash-live i, .dash-card { animation: none !important; }
+}

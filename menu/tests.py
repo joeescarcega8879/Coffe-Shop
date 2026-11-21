@@ -225,3 +225,103 @@ class ContactViewTests(TestCase):
         })
         self.assertRedirects(response, reverse('menu:contact'))
         self.assertEqual(ContactMessage.objects.first().phone, '')
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage
+# ---------------------------------------------------------------------------
+
+class CategorySlugTests(TestCase):
+    def test_explicit_slug_is_kept(self):
+        c = Category.objects.create(name='Hot Drinks', slug='custom')
+        self.assertEqual(c.slug, 'custom')
+
+    def test_slug_slugifies_spaces(self):
+        self.assertEqual(Category.objects.create(name='Hot Drinks').slug, 'hot-drinks')
+
+    def test_name_is_unique(self):
+        from django.db import IntegrityError, transaction
+        Category.objects.create(name='Coffees')
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Category.objects.create(name='Coffees')
+
+
+class HomeLimitTests(TestCase):
+    def test_featured_limited_to_six(self):
+        cat = Category.objects.create(name='Coffees')
+        for i in range(8):
+            MenuItem.objects.create(
+                name=f'Item{i:02d}', price='1.00', category=cat, is_featured=True)
+        response = self.client.get(reverse('menu:home'))
+        self.assertEqual(len(response.context['featured_items']), 6)
+
+
+class MenuListFilterTests(TestCase):
+    def test_filter_excludes_unavailable_within_category(self):
+        cat = Category.objects.create(name='Coffees', slug='coffees')
+        MenuItem.objects.create(name='Visible', price='1.00', category=cat)
+        MenuItem.objects.create(name='Gone', price='1.00', category=cat, is_available=False)
+        response = self.client.get(reverse('menu:menu_list'), {'categoria': 'coffees'})
+        self.assertContains(response, 'Visible')
+        self.assertNotContains(response, 'Gone')
+
+    def test_categories_in_context_for_filter_bar(self):
+        Category.objects.create(name='Coffees')
+        Category.objects.create(name='Desserts')
+        response = self.client.get(reverse('menu:menu_list'))
+        self.assertEqual(len(response.context['categories']), 2)
+
+
+class CartIntegrationTests(TestCase):
+    """The menu pages must point to the orders cart endpoint."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cat = Category.objects.create(name='Coffees')
+        cls.item = MenuItem.objects.create(name='Espresso', price='3.50', category=cat)
+        cls.add_url = reverse('orders:cart_add', args=[cls.item.pk])
+
+    def test_list_has_add_to_cart_url(self):
+        self.assertContains(self.client.get(reverse('menu:menu_list')), self.add_url)
+
+    def test_detail_has_add_to_cart_form(self):
+        response = self.client.get(reverse('menu:menu_detail', args=[self.item.pk]))
+        self.assertContains(response, self.add_url)
+
+    def test_cart_count_in_context(self):
+        self.client.post(self.add_url, {'quantity': 2})
+        response = self.client.get(reverse('menu:home'))
+        self.assertEqual(response.context['cart_count'], 2)
+
+
+class ContactEdgeCaseTests(TestCase):
+    def test_whitespace_only_fields_rejected(self):
+        self.client.post(reverse('menu:contact'), {
+            'name': '   ', 'email': '  ', 'message': '\n\t ',
+        })
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    def test_values_are_stripped(self):
+        self.client.post(reverse('menu:contact'), {
+            'name': '  Ana ', 'email': ' ana@example.com ', 'message': ' Hi ',
+        })
+        msg = ContactMessage.objects.get()
+        self.assertEqual((msg.name, msg.email, msg.message), ('Ana', 'ana@example.com', 'Hi'))
+
+    def test_missing_one_required_field_rejected(self):
+        self.client.post(reverse('menu:contact'), {'name': 'Ana', 'email': 'a@a.com'})
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    def test_malformed_email_is_rejected_with_field_error(self):
+        response = self.client.post(reverse('menu:contact'), {
+            'name': 'Ana', 'email': 'not-an-email', 'message': 'Hi'})
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('email', response.context['form'].errors)
+        self.assertContains(response, 'Enter a valid email address')
+
+    def test_invalid_post_keeps_entered_values(self):
+        response = self.client.post(reverse('menu:contact'), {
+            'name': 'Ana', 'email': 'bad', 'message': 'Keep me'})
+        self.assertContains(response, 'value="Ana"')
+        self.assertContains(response, 'Keep me')

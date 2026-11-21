@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard - Coffee Shop{% endblock %}
+{% block page %}dashboard{% endblock %}
+{% block content %}
+<div class="pt-24 pb-xl px-margin-mobile md:px-lg max-w-[110rem] mx-auto w-full"
+     data-dashboard data-feed-url="{% url 'orders:dashboard_feed' %}">
+  <div class="flex flex-wrap items-center justify-between gap-md mb-lg">
+    <div>
+      <h1 class="font-headline-md text-headline-md text-primary">Today's orders</h1>
+      <p class="text-on-surface-variant">{{ today_count }} order{{ today_count|pluralize }} · ${{ today_total|floatformat:2 }}</p>
+    </div>
+    <div class="flex items-center gap-md">
+      <span class="dash-live" title="Checking for new orders"><i></i> Live</span>
+      <form method="post" action="{% url 'orders:dashboard_toggle_store' %}">
+        {% csrf_token %}
+        <button class="inline-flex items-center gap-xs rounded-lg py-sm px-md font-label-bold text-label-bold transition-transform active:scale-95 {% if store.accepting_orders %}bg-tertiary-container text-on-tertiary{% else %}bg-error-container text-on-error-container{% endif %}">
+          <span class="material-symbols-outlined" style="font-size:20px">{% if store.accepting_orders %}storefront{% else %}block{% endif %}</span>
+          {% if store.accepting_orders %}Accepting orders — tap to pause{% else %}Orders paused — tap to resume{% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="dash-board">
+    {% for key, label, orders in columns %}
+    <section class="dash-col" data-col="{{ key }}">
+      <h2 class="dash-col-title"><span>{{ label }}</span><b>{{ orders|length }}</b></h2>
+      {% for o in orders %}
+      <article class="dash-card" data-order-id="{{ o.pk }}">
+        <header class="flex justify-between items-baseline">
+          <strong class="text-primary">#{{ o.pk }} · {{ o.customer_name }}</strong>
+          <time class="text-on-surface-variant text-sm">{{ o.created_at|time:"H:i" }}</time>
+        </header>
+        <p class="text-sm text-on-surface-variant">{{ o.get_order_type_display }} · <a href="tel:{{ o.phone }}" class="underline">{{ o.phone }}</a></p>
+        <ul class="my-xs">
+          {% for it in o.items.all %}<li>{{ it.quantity }} × {{ it.name }}</li>{% endfor %}
+        </ul>
+        {% if o.notes %}<p class="dash-note">“{{ o.notes }}”</p>{% endif %}
+        <footer class="flex items-center justify-between gap-xs mt-sm">
+          <span class="font-label-bold text-label-bold">${{ o.total|floatformat:2 }}</span>
+          <div class="flex gap-xs">
+            {% if key != 'completed' and key != 'cancelled' %}
+            <form method="post" action="{% url 'orders:dashboard_status' o.pk %}">{% csrf_token %}
+              <input type="hidden" name="status" value="cancelled">
+              <button class="dash-btn dash-btn-ghost" title="Cancel order" aria-label="Cancel order #{{ o.pk }}">Cancel</button>
+            </form>
+            <form method="post" action="{% url 'orders:dashboard_status' o.pk %}">{% csrf_token %}
+              <input type="hidden" name="status" value="{% if key == 'pending' %}preparing{% elif key == 'preparing' %}ready{% else %}completed{% endif %}">
+              <button class="dash-btn">{% if key == 'pending' %}Start{% elif key == 'preparing' %}Ready{% else %}Complete{% endif %} →</button>
+            </form>
+            {% elif key == 'cancelled' %}
+            <form method="post" action="{% url 'orders:dashboard_status' o.pk %}">{% csrf_token %}
+              <input type="hidden" name="status" value="pending">
+              <button class="dash-btn dash-btn-ghost">Reopen</button>
+            </form>
+            {% endif %}
+          </div>
+        </footer>
+      </article>
+      {% empty %}
+      <p class="dash-empty">Nothing here</p>
+      {% endfor %}
+    </section>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/dashboard.js' %}"></script>{% endblock %}

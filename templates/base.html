@@ -49,6 +49,14 @@
             data-nav-link
             >Contact</a
           >
+          {% if user.is_staff %}
+          <a
+            class="nav-link text-tertiary-fixed-dim"
+            href="{% url 'orders:dashboard' %}"
+            data-nav-link
+            >Dashboard</a
+          >
+          {% endif %}
         </div>
         <div class="flex items-center gap-md">
           <a
@@ -100,8 +108,18 @@
           data-nav-link
           >Contact</a
         >
+        {% if user.is_staff %}
+        <a class="nav-link text-tertiary-fixed-dim" href="{% url 'orders:dashboard' %}" data-nav-link>Dashboard</a>
+        {% endif %}
       </div>
     </nav>
+
+    {% if not store_open %}
+    <div class="store-closed-bar" role="status">
+      <span class="material-symbols-outlined" style="font-size:18px">schedule</span>
+      <span>{{ store_closed_message }}</span>
+    </div>
+    {% endif %}
 
     <!-- Mensajes flash (el formulario de contacto los usa) -->
     {% if messages %}
