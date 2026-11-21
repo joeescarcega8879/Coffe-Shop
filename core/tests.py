@@ -294,3 +294,62 @@ class AccessibilityTests(TestCase):
         for name in ('menu_list.html', 'menu_detail.html'):
             text = (Path(settings.BASE_DIR) / 'templates' / 'menu' / name).read_text()
             self.assertNotIn('text-[#C08552]', text)
+
+
+class DashboardLoginTests(TestCase):
+    """The owner signs in on our own page, not on the stock Django admin login."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        cls.owner = User.objects.create_user('owner@example.com', password='s3cret-pass', is_staff=True)
+        cls.customer = User.objects.create_user('someone', password='s3cret-pass')
+
+    def url(self):
+        return reverse('orders:dashboard_login')
+
+    def test_page_is_branded_and_not_the_admin_login(self):
+        html = self.client.get(self.url()).content.decode()
+        self.assertIn('Coffee Shop', html)
+        self.assertNotIn('Django administration', html)
+        self.assertIn('noindex', html)
+
+    def test_staff_can_sign_in_and_land_on_the_dashboard(self):
+        r = self.client.post(self.url(), {'username': 'owner@example.com', 'password': 's3cret-pass'})
+        self.assertRedirects(r, reverse('orders:dashboard'), fetch_redirect_response=False)
+
+    def test_next_parameter_is_respected(self):
+        r = self.client.post(self.url() + '?next=/dashboard/products/',
+                             {'username': 'owner@example.com', 'password': 's3cret-pass', 'next': '/dashboard/products/'})
+        self.assertRedirects(r, '/dashboard/products/', fetch_redirect_response=False)
+
+    def test_wrong_password_shows_a_friendly_error(self):
+        r = self.client.post(self.url(), {'username': 'owner@example.com', 'password': 'nope'})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'do not match')
+
+    def test_non_staff_account_is_rejected(self):
+        r = self.client.post(self.url(), {'username': 'someone', 'password': 's3cret-pass'})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'does not have access')
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_admin_login_url_redirects_here_keeping_next(self):
+        r = self.client.get('/admin/login/?next=/admin/')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], self.url() + '?next=/admin/')
+
+    def test_admin_has_shop_branding(self):
+        self.client.force_login(self.owner)
+        html = self.client.get('/admin/').content.decode()
+        self.assertIn('Coffee Shop admin', html)
+        self.assertNotIn('Django administration', html)
+
+    @override_settings(RATELIMIT_ENABLED=True)
+    def test_repeated_attempts_are_rate_limited(self):
+        cache.clear()
+        for _ in range(10):
+            self.client.post(self.url(), {'username': 'owner@example.com', 'password': 'bad'})
+        self.assertEqual(self.client.post(self.url(), {'username': 'owner@example.com', 'password': 'bad'}).status_code, 429)
+        cache.clear()

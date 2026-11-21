@@ -1,11 +1,12 @@
 """Owner dashboard: product management (staff only)."""
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+
+from core.auth import dashboard_required
 
 from .forms import ProductForm
 from .models import Category, MenuItem
@@ -21,7 +22,7 @@ def _back(request, default='menu:dash_products'):
     return redirect(default)
 
 
-@staff_member_required
+@dashboard_required
 def products(request):
     items = MenuItem.objects.select_related('category')
     q = request.GET.get('q', '').strip()
@@ -52,17 +53,17 @@ def _product_form(request, instance=None):
         'form': form, 'item': instance, 'has_categories': Category.objects.exists()})
 
 
-@staff_member_required
+@dashboard_required
 def product_add(request):
     return _product_form(request)
 
 
-@staff_member_required
+@dashboard_required
 def product_edit(request, pk):
     return _product_form(request, get_object_or_404(MenuItem, pk=pk))
 
 
-@staff_member_required
+@dashboard_required
 @require_POST
 def product_toggle(request, pk):
     item = get_object_or_404(MenuItem, pk=pk)
@@ -73,7 +74,7 @@ def product_toggle(request, pk):
     return _back(request)
 
 
-@staff_member_required
+@dashboard_required
 @require_POST
 def product_delete(request, pk):
     item = get_object_or_404(MenuItem, pk=pk)

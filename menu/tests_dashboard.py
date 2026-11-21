@@ -97,7 +97,7 @@ class StandaloneLayoutTests(DashBase):
     def test_unauthenticated_users_are_sent_to_login(self):
         r = self.client.get(reverse('menu:dash_products'))
         self.assertEqual(r.status_code, 302)
-        self.assertIn('/admin/login/', r['Location'])
+        self.assertIn('/dashboard/login/', r['Location'])
         self.assertIn('next=/dashboard/products/', r['Location'])
 
 

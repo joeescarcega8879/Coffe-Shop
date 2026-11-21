@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -9,6 +8,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from core.auth import dashboard_required
 from core.ratelimit import rate_limit
 from menu.models import MenuItem
 
@@ -165,7 +165,7 @@ def order_track_status(request, token):
 
 # ---------- Owner: dashboard (staff only) ----------
 
-@staff_member_required
+@dashboard_required
 def dashboard(request):
     today = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
     orders = Order.objects.filter(created_at__gte=today).prefetch_related('items')
@@ -182,7 +182,7 @@ def dashboard(request):
     })
 
 
-@staff_member_required
+@dashboard_required
 @require_POST
 def dashboard_set_status(request, pk):
     order = get_object_or_404(Order, pk=pk)
@@ -193,7 +193,7 @@ def dashboard_set_status(request, pk):
     return redirect('orders:dashboard')
 
 
-@staff_member_required
+@dashboard_required
 @require_POST
 def dashboard_toggle_store(request):
     store = StoreSettings.load()
@@ -202,7 +202,7 @@ def dashboard_toggle_store(request):
     return redirect('orders:dashboard')
 
 
-@staff_member_required
+@dashboard_required
 def dashboard_feed(request):
     """Polled by the dashboard to detect new orders without a page reload."""
     latest = Order.objects.order_by('-pk').first()

@@ -1,0 +1,54 @@
+{% load static %}<!doctype html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sign in · Coffee Shop</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}" />
+    <meta name="theme-color" content="#271310" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="{% static 'js/tailwind-config.js' %}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+  </head>
+  <body class="bg-background text-on-background antialiased font-body-md text-body-md min-h-screen flex flex-col">
+    <a href="#main" class="skip-link">Skip to content</a>
+    <main id="main" class="flex-grow grid place-items-center px-margin-mobile py-xl">
+      <div class="w-full max-w-sm">
+        <div class="text-center mb-lg">
+          <span class="inline-grid place-items-center w-16 h-16 rounded-2xl bg-primary text-tertiary-fixed-dim">
+            <span aria-hidden="true" class="material-symbols-outlined" style="font-size:36px">local_cafe</span>
+          </span>
+          <h1 class="font-headline-md text-headline-md text-primary mt-md">Coffee Shop</h1>
+          <p class="text-on-surface-variant">Sign in to manage your orders and menu</p>
+        </div>
+
+        <form method="post" class="bg-surface-container-lowest rounded-xl soft-shadow p-lg flex flex-col gap-md" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div role="alert" class="rounded-lg bg-error-container text-on-error-container p-sm text-sm">
+            {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+          </div>
+          {% endif %}
+          <div class="flex flex-col gap-xs">
+            <label for="{{ form.username.id_for_label }}" class="font-label-bold text-label-bold text-primary">{{ form.username.label }}</label>
+            {{ form.username }}
+            {% for e in form.username.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
+          </div>
+          <div class="flex flex-col gap-xs">
+            <label for="{{ form.password.id_for_label }}" class="font-label-bold text-label-bold text-primary">Password</label>
+            {{ form.password }}
+            {% for e in form.password.errors %}<p role="alert" class="text-error text-sm">{{ e }}</p>{% endfor %}
+          </div>
+          <input type="hidden" name="next" value="{{ next }}">
+          <button type="submit" class="bg-primary-container text-on-primary font-label-bold text-label-bold py-md rounded-lg hover:scale-[1.02] active:scale-95 transition-transform">
+            Sign in
+          </button>
+        </form>
+
+        <p class="text-center mt-lg"><a href="{% url 'menu:home' %}" class="text-secondary underline">← Back to the shop</a></p>
+      </div>
+    </main>
+  </body>
+</html>
