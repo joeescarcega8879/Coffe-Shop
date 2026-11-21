@@ -1,4 +1,4 @@
-"""Populate the shop with demo products (with photos) and, optionally, sample orders.
+"""Populate the shop with 40 demo products (8 per category, with photos) and, optionally, sample orders.
 
     python manage.py seed_demo                 # add missing demo products
     python manage.py seed_demo --with-orders   # also create sample orders for the dashboard
@@ -24,6 +24,12 @@ IMAGES = Path(__file__).resolve().parents[2] / 'fixtures' / 'demo_images'
 
 # (slug/image, category, name, price, featured, description)
 PRODUCTS = [
+    ('espresso', 'Coffees', 'Espresso', '3.50', True,
+     'A concentrated shot of our signature house blend.'),
+    ('latte', 'Coffees', 'Latte', '4.25', False,
+     'Espresso with plenty of milk and a touch of foam.'),
+    ('cappuccino', 'Coffees', 'Cappuccino', '4.50', True,
+     'Espresso balanced with steamed milk and a thick layer of microfoam.'),
     ('americano', 'Coffees', 'Americano', '3.25', False,
      'Double espresso lengthened with hot water. Clean, bold and smooth.'),
     ('flat-white', 'Coffees', 'Flat White', '4.50', False,
@@ -34,6 +40,12 @@ PRODUCTS = [
      'A shot of espresso "marked" with a spoonful of silky milk foam.'),
     ('cortado', 'Coffees', 'Cortado', '3.95', False,
      'Equal parts espresso and warm milk: smooth, balanced and not too strong.'),
+    ('chocolate-frappe', 'Cold Drinks', 'Chocolate Frappe', '5.50', True,
+     'Rich chocolate blended with ice and milk, finished with whipped cream.'),
+    ('vanilla-frappe', 'Cold Drinks', 'Vanilla Frappe', '5.25', False,
+     'Iced coffee blended with ice and vanilla.'),
+    ('lemonade', 'Cold Drinks', 'Lemonade', '3.95', False,
+     'Fresh lemonade with a hint of mint.'),
     ('iced-mocha', 'Cold Drinks', 'Iced Mocha', '5.25', False,
      'Chilled espresso, chocolate and milk over ice. Our summer bestseller.'),
     ('orange-juice', 'Cold Drinks', 'Fresh Orange Juice', '4.25', False,
@@ -60,6 +72,8 @@ PRODUCTS = [
      'Fresh mint leaves steeped in tea and lightly sweetened, the traditional way.'),
     ('hibiscus-tea', 'Tea', 'Hibiscus Tea', '4.25', False,
      'Ruby-red, tart and refreshing. Served chilled over ice with a slice of lime.'),
+    ('pancakes', 'Breakfast', 'Pancakes', '8.50', True,
+     'Three fluffy buttermilk pancakes served with real maple syrup.'),
     ('avocado-toast', 'Breakfast', 'Avocado Toast', '9.50', True,
      'Sourdough, smashed avocado, cherry tomatoes and arugula with chili flakes.'),
     ('eggs-benedict', 'Breakfast', 'Eggs Benedict', '11.00', False,
@@ -74,6 +88,12 @@ PRODUCTS = [
      'Three free-range eggs folded around melted cheese, served with a side of greens.'),
     ('bagel', 'Breakfast', 'Bagel with Cream Cheese', '5.25', False,
      'Freshly baked bagel, toasted and spread with whipped cream cheese.'),
+    ('brownie', 'Desserts', 'Brownie', '4.50', False,
+     'Chocolate walnut brownie, served warm.'),
+    ('cheesecake', 'Desserts', 'Cheesecake', '6.00', True,
+     'Classic, creamy New York style cheesecake with a graham cracker crust.'),
+    ('croissant', 'Desserts', 'Croissant', '3.75', False,
+     'Flaky, buttery, and baked fresh daily in-house.'),
     ('tiramisu', 'Desserts', 'Tiramisu', '6.75', False,
      'Espresso-soaked ladyfingers layered with mascarpone cream and cocoa.'),
     ('blueberry-muffin', 'Desserts', 'Blueberry Muffin', '3.95', False,

@@ -37,3 +37,13 @@ Edited | Public domain | <https://commons.wikimedia.org/wiki/File:Orange_juice_1
 | chamomile.jpg | Herbal Tea 04.jpg | PagesAndPathsPH | CC0 | <https://commons.wikimedia.org/wiki/File:Herbal_Tea_04.jpg> |
 | mint-tea.jpg | مشروب شاى النعناع.jpg | Marwa Siddig Aljally Altaueb | CC0 | <https://commons.wikimedia.org/wiki/File:%D9%85%D8%B4%D8%B1%D9%88%D8%A8_%D8%B4%D8%A7%D9%89_%D8%A7%D9%84%D9%86%D8%B9%D9%86%D8%A7%D8%B9.jpg> |
 | hibiscus-tea.jpg | A glass of hibiscus tea 01.jpg | claralieu | CC BY 2.0 | <https://commons.wikimedia.org/wiki/File:A_glass_of_hibiscus_tea_01.jpg> |
+| espresso.jpg | Espresso BW 1.jpg | Berthold Werner | Public domain | <https://commons.wikimedia.org/wiki/File:Espresso_BW_1.jpg> |
+| latte.jpg | Latte art and blueberries (Unsplash).jpg | Toa Heftiba heftiba | CC0 | <https://commons.wikimedia.org/wiki/File:Latte_art_and_blueberries_(Unsplash).jpg> |
+| cappuccino.jpg | A cup of cappuccino.jpg | Vee Satayamas | CC BY 4.0 | <https://commons.wikimedia.org/wiki/File:A_cup_of_cappuccino.jpg> |
+| brownie.jpg | Chocolate Brownie Decorated.jpg | Miansari66 | CC0 | <https://commons.wikimedia.org/wiki/File:Chocolate_Brownie_Decorated.jpg> |
+| cheesecake.jpg | Mondays at Il Forno - Cheesecake with strawberry sauce.jpg | Alex Dugger | CC BY 2.0 | <https://commons.wikimedia.org/wiki/File:Mondays_at_Il_Forno_-_Cheesecake_with_strawberry_sauce.jpg> |
+| croissant.jpg | Croissant-newspaper-and-tea.jpg | Petr Kratochvil | CC0 | <https://commons.wikimedia.org/wiki/File:Croissant-newspaper-and-tea.jpg> |
+| pancakes.jpg | The Smoking Stack Pancakes - Laughing Dog 2026-08-25.jpg | Andy Li | CC0 | <https://commons.wikimedia.org/wiki/File:The_Smoking_Stack_Pancakes_-_Laughing_Dog_2026-08-25.jpg> |
+| chocolate-frappe.jpg | Frappe - coffee milkshake with whipped cream and chocolate (KETO, LCHF, Low Carb, Gluten free, FIT) - 52774791604.jpg | Ewelina Podrez-Siama | CC BY 2.0 | <https://commons.wikimedia.org/wiki/File:Frappe_-_coffee_milkshake_with_whipped_cream_and_chocolate_(KETO,_LCHF,_Low_Carb,_Gluten_free,_FIT)_-_52774791604.jpg> |
+| vanilla-frappe.jpg | Vanilla Frappe - Blossom Cafe Bar 2024-08-13.jpg | Andy Li | CC0 | <https://commons.wikimedia.org/wiki/File:Vanilla_Frappe_-_Blossom_Cafe_Bar_2024-08-13.jpg> |
+| lemonade.jpg | Lemonade 2.jpg | Shisma | CC BY 4.0 | <https://commons.wikimedia.org/wiki/File:Lemonade_2.jpg> |

@@ -71,6 +71,15 @@ class SeedDemoTests(TestCase):
         seed()
         self.assertEqual(MenuItem.objects.filter(name='Americano').count(), 2)
 
+    def test_every_category_has_exactly_eight_products(self):
+        seed()
+        counts = {c.name: c.menu_items.count() for c in Category.objects.all()}
+        self.assertEqual(counts, {'Coffees': 8, 'Cold Drinks': 8, 'Breakfast': 8, 'Desserts': 8, 'Tea': 8})
+
+    def test_home_page_features_at_most_six_seeded_products(self):
+        seed()
+        self.assertLessEqual(MenuItem.objects.filter(is_featured=True).count(), 6)
+
     def test_creates_store_settings(self):
         from orders.models import StoreSettings
         seed()
@@ -106,6 +115,29 @@ class SeedDemoTests(TestCase):
         seed()
         self.assertContains(self.client.get('/menu/'), 'Tiramisu')
         self.assertContains(self.client.get('/'), 'Avocado Toast')  # the one featured demo item
+
+
+class NeutralBrandingTests(TestCase):
+    """Public pages must not carry contact data or names belonging to a third party."""
+
+    def test_no_third_party_branding_or_contact_data_in_the_project(self):
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent
+        offenders = []
+        for folder in ('templates', 'static', 'menu', 'orders', 'core'):
+            for path in (root / folder).rglob('*'):
+                if path.suffix in {'.html', '.js', '.css', '.py'} and path.name not in {'tests_seed.py'}:
+                    text = path.read_text(errors='ignore').lower()
+                    if 'hearthroastery' in text or 'hearth roastery' in text:
+                        offenders.append(str(path.relative_to(root)))
+        self.assertEqual(offenders, [])
+
+    def test_contact_details_use_reserved_placeholders(self):
+        for url in ('/', '/contact/'):
+            html = self.client.get(url).content.decode()
+            self.assertIn('hello@example.com', html)  # example.com is reserved: it belongs to nobody
+            self.assertIn('(555) 555-0123', html)      # 555-01xx is the fictional phone range
+            self.assertNotIn('hearthroastery', html)
 
 
 class SeedAssetsTests(TestCase):
